@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Corp Strategy: Vertical Integration | 集團策略：垂直整合</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script>
+tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],serif:['Merriweather','serif']}}}}
+</script>
+<style>
+@keyframes fadeInUp{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+.animate-fade-in{animation:fadeInUp .5s ease-out forwards}
+.perspective{perspective:1000px}
+.transform-style-3d{transform-style:preserve-3d}
+.backface-hidden{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.rotate-y-180{transform:rotateY(180deg)}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+.dark ::-webkit-scrollbar-thumb{background:#475569}
+::selection{background:#004030;color:#fff}
+.dark ::selection{background:#D8C3A5;color:#004030}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback}=React;
+
+/* ===== SVG Icons ===== */
+const IconBookOpen=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>;
+const IconAlertTriangle=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+const IconCheckCircle=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+const IconGlobe=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>;
+const IconChevronRight=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6"/></svg>;
+const IconChevronUp=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 15 12 9 6 15"/></svg>;
+const IconMenu=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
+const IconX=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconMoon=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>;
+const IconSun=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
+const IconPlay=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+const IconPause=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>;
+const IconSquare=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>;
+const IconArrowRight=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
+const IconActivity=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>;
+const IconCpu=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>;
+const IconTrendingUp=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
+const IconLayers=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
+const IconFlag=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>;
+const IconZap=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+const IconFlask=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 3h6v7l5 8H4l5-8V3z"/><line x1="8" y1="3" x2="16" y2="3"/></svg>;
+const IconZapLab=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/><circle cx="18" cy="5" r="3"/></svg>;
+
+/* ===== DICT ===== */
+const dict={
+zh:{
+brand:"VI",
+title:"集團策略：垂直整合",
+subtitle:"Corp Strategy: Vertical Integration",
+nav_modules:"單元目錄",nav_prev:"上一單元",nav_next:"下一單元",
+key_terms:"關鍵專有名詞",flip_prompt:"點擊翻轉",audio_read:"語音導覽",
+quiz_title:"模組知識檢定 (隨機 4 題)",
+submit:"提交答案",retry:"重新測驗",
+score:"得分",correct:"正確",incorrect:"錯誤",explanation:"解析",
+
+analytics_title:"學習歷程分析",analytics_desc:"追蹤您在各模組的學習時間、互動點擊與測驗表現。",analytics_form_title:"基本資料",
+analytics_group:"組別",analytics_dept:"系級",
+analytics_dept_ph:"例：IBS3",
+analytics_id:"學號",
+analytics_id_ph:"例：112212099",
+analytics_name:"姓名",
+analytics_name_ph:"例：Jimmy Lo",
+analytics_export_csv:"匯出 CSV 歷程記錄",
+analytics_fill_required:"請填寫完整資訊以解鎖匯出",
+group_options:["G1","G2","G3","G4","G5","G6","G7","G8","Others"],
+analytics_total_time:"總學習時間",analytics_total_clicks:"總互動點擊",
+analytics_overall_acc:"總體測驗答對率",
+analytics_module:"模組",analytics_time:"停留時間",
+analytics_clicks:"點擊次數",analytics_acc:"答對率",
+analytics_correct_ans_total:"答對 / 已填答 / 總題數",
+analytics_no_data:"尚未測驗",analytics_sec:"秒",analytics_times:"次",
+
+m0_nav:"0. 課程總覽",
+m0_title:"垂直整合與企業範疇",
+m0_intro:"企業該自己做還是外包？垂直整合決定了企業在價值鏈上的控制範圍，是集團策略的核心議題。本課程深入剖析交易成本理論、整合的利弊權衡，以及各種替代性垂直關係的設計。",
+m0_why:"為什麼垂直整合重要？",
+m0_why_desc:"從 Disney 的全方位娛樂帝國到 Nike 的輕資產模式，企業如何決定哪些活動留在組織內部、哪些外包給市場？這個「自製或外購」的決策，直接影響效率、彈性與競爭優勢。",
+m0_modules:[
+  {num:"01",title:"企業範疇與交易成本",desc:"Coase 理論、市場機制 vs. 行政機制"},
+  {num:"02",title:"垂直整合的效益",desc:"技術經濟、避免交易成本、協調優勢"},
+  {num:"03",title:"垂直整合的成本",desc:"規模差異、能力發展、激勵問題"},
+  {num:"04",title:"自製或外購決策",desc:"關鍵考量因素與決策框架"},
+  {num:"05",title:"垂直關係設計與趨勢",desc:"長期契約、特許經營、夥伴關係"}
+],
+m0_stats:[
+  {val:"200+",label:"年企業演進歷史"},
+  {val:"9",label:"項關鍵決策因素"},
+  {val:"7",label:"種垂直關係類型"},
+  {val:"30+",label:"年外包趨勢"}
+],
+m0_start:"開始學習 →",
+
+m1_nav:"1. 企業範疇與交易成本",m1_title:"企業範疇與交易成本",
+m1_p1:"資本主義經濟實際上包含兩種組織形式：由價格引導的「市場機制」（亞當·斯密的「看不見的手」），以及由管理者規劃的「行政機制」（錢德勒所稱的「看得見的手」）。企業之所以存在，是因為在某些情況下，內部行政組織比外部市場交易更有效率。",
+m1_p2:"Ronald Coase 提出了經典問題：什麼決定了企業的邊界？答案在於比較市場的交易成本與企業內部的行政成本。當市場交易成本（搜尋、談判、簽約、監督、執行）高於內部行政成本時，活動就傾向於被納入企業內部。",
+m1_p3:"過去 200 年間，企業規模與範疇經歷了重大變遷。19 世紀工業革命推動了工廠制度的興起；20 世紀的管理創新使大型企業的行政效率大幅提升。然而自 1970 年代起，更動盪的商業環境與新的資通訊技術，反而有利於更專注的企業透過市場來協調。",
+m1_cards:[
+  {title:"市場機制",desc:"透過市場價格引導獨立決策的買賣雙方，無需有意識的規劃。交易成本包括搜尋、談判、簽約、監督與執行成本。"},
+  {title:"行政機制",desc:"由管理者透過層級組織進行生產與資源配置決策。行政成本可因技術（ICT）與管理創新（會計系統）大幅降低。"}
+],
+m1_terms:[
+  {front:"交易成本\nTransaction Costs",back:"使用市場機制進行交易所產生的搜尋、談判、簽約、監督與執行成本。"},
+  {front:"行政成本\nAdministrative Costs",back:"在企業內部透過層級組織進行活動協調所產生的管理成本。"},
+  {front:"企業範疇\nScope of the Firm",back:"企業活動的範圍，包含垂直範疇、產品範疇與地理範疇三個維度。"}
+],
+m1_q:[
+  {q:"根據 Coase 的理論，企業存在的主要原因是什麼？",opts:["最大化股東利潤","降低市場交易成本","增加員工福利","擴大市場份額"],ans:1,exp:"Coase 認為企業存在是因為在某些情況下，組織內部的行政成本低於使用市場的交易成本。"},
+  {q:"以下何者不屬於市場交易成本？",opts:["搜尋成本","談判成本","層級管理成本","執行成本"],ans:2,exp:"層級管理成本是企業內部的行政成本，不是市場交易成本。"},
+  {q:"亞當·斯密所稱的「看不見的手」是指什麼？",opts:["政府管制","市場價格機制","企業管理層級","國際貿易"],ans:1,exp:"「看不見的手」指的是市場價格機制，無需有意識的規劃即可協調經濟活動。"},
+  {q:"20 世紀中期大型企業規模擴張的主要驅動力是什麼？",opts:["網路技術","管理與組織創新","政府補貼","全球化"],ans:1,exp:"系統性管理方法、組織創新（如多事業部結構）和電話等技術降低了內部行政成本。"},
+  {q:"1970 年代後企業傾向縮小規模的原因是什麼？",opts:["法規限制","商業環境更動盪且 ICT 進步","原物料短缺","勞動力不足"],ans:1,exp:"更動盪的環境與數位資訊技術使小型專注企業透過市場協調變得更有效率。"},
+  {q:"企業的三個範疇維度不包括以下哪一項？",opts:["垂直範疇","產品範疇","財務範疇","地理範疇"],ans:2,exp:"企業範疇包含垂直範疇、產品範疇與地理範疇，不包括財務範疇。"},
+  {q:"IBM 大型主機電腦的生產方式最接近以下哪種模式？",opts:["完全垂直整合","完全外包","特許經營","合資企業"],ans:0,exp:"IBM 大型主機使用自家微處理器、作業系統、應用軟體，並自行進行分銷與客服，屬於高度垂直整合。"},
+  {q:"HP 筆記型電腦的生產模式說明了什麼？",opts:["垂直整合的優勢","市場機制可有效協調複雜供應鏈","企業必須自製所有零件","外包必然降低品質"],ans:1,exp:"HP 將製造外包給多家代工廠，零件來自不同供應商，說明市場機制可有效協調複雜的供應鏈。"}
+],
+
+m2_nav:"2. 垂直整合的效益",m2_title:"垂直整合的效益",
+m2_p1:"垂直整合的第一項效益是技術經濟（Technical Economies）：將相鄰生產流程進行物理整合可節省成本。例如，鋼鐵業將煉鋼與熱軋鋼板整合在同一工廠，可大幅減少運輸與能源成本。類似的技術經濟也出現在紙漿與造紙、石油精煉與石化生產的整合中。",
+m2_p2:"第二項效益是避免交易成本。當交易涉及特定資產投資（Transaction-Specific Investments）時，市場交易將面臨嚴重問題。以鋼鐵與鋼帶生產為例：兩個階段的工廠必須配對建設，一旦建成，雙方便陷入雙邊壟斷關係，每位賣方只面對一位買方。這種相互依賴鼓勵了機會主義行為與策略性的資訊扭曲。",
+m2_p3:"實證研究證實，特定資產投資傾向於推動垂直整合：在汽車業，專用零組件比輪胎等通用商品更可能自製；在半導體業，技術越複雜的晶片，設計與製造之間的整合程度越高。反之，當市場交易成本低時（如鋼帶與製罐之間有眾多買賣方），市場契約就很有效率。",
+m2_cards:[
+  {title:"技術經濟",desc:"將相鄰生產流程物理整合，節省運輸與能源成本。如煉鋼與熱軋鋼板、紙漿與造紙。"},
+  {title:"避免交易成本",desc:"透過內部化消除市場交易中的搜尋、談判、監督成本，尤其在涉及特定資產投資時效益顯著。"},
+  {title:"特定資產投資",desc:"為特定交易關係所做的專用投資（如場址、實體設備、人力資本），一旦投入便難以轉用。"},
+  {title:"雙邊壟斷",desc:"當買賣雙方因特定投資而彼此鎖定，各自只面對一個交易對象，市場競爭效率喪失。"}
+],
+m2_terms:[
+  {front:"特定資產投資\nTransaction-Specific Investment",back:"為特定交易關係而進行的專用投資，包括場址專屬性、實體資產專屬性與人力資本專屬性，一旦投入便難以轉用。"},
+  {front:"雙邊壟斷\nBilateral Monopoly",back:"當特定投資使買賣雙方彼此鎖定時，形成各自只面對一個交易對象的情況，容易產生機會主義與議價問題。"},
+  {front:"套牢問題\nHold-Up Problem",back:"在特定資產投資後，一方可威脅撤回交易以壓榨對方，因對方已無法輕易轉向其他交易夥伴。"}
+],
+m2_q:[
+  {q:"以下何者是垂直整合的技術經濟效益？",opts:["降低談判成本","物理整合相鄰流程節省運輸能源","擴大市場份額","提高員工激勵"],ans:1,exp:"技術經濟指的是將相鄰生產流程整合在同一地點，節省運輸與能源成本。"},
+  {q:"鋼鐵生產與鋼帶生產傾向垂直整合的主要原因是什麼？",opts:["降低人工成本","因特定資產投資產生雙邊壟斷","政府法規要求","消費者偏好"],ans:1,exp:"兩階段工廠需配對建設，形成特定資產投資，導致雙邊壟斷關係。"},
+  {q:"以下哪種情況市場交易最有效率？",opts:["買賣雙方各只有一家","需要高度客製化投資","眾多買賣方且標準化產品","高度不確定的未來環境"],ans:2,exp:"當有眾多買賣方、資訊容易取得且轉換成本低時，市場交易最有效率。"},
+  {q:"在汽車業中，什麼類型的零組件更可能自製？",opts:["通用輪胎","標準火星塞","專用客製零件","通用螺絲"],ans:2,exp:"專用零組件因涉及特定資產投資，更傾向垂直整合自製。"},
+  {q:"Hold-Up Problem 最可能發生在以下哪種情況？",opts:["競爭市場中的標準商品交易","雙方已投入大量特定資產","短期現貨交易","政府管制市場"],ans:1,exp:"當雙方已投入特定資產後，彼此鎖定，一方可威脅撤回交易以壓榨對方。"},
+  {q:"為什麼技術經濟不足以單獨解釋垂直整合？",opts:["技術經濟不存在","共同所有權可由不同公司的設施物理整合替代","技術經濟只適用於服務業","技術經濟只降低固定成本"],ans:1,exp:"物理整合可由相鄰的不同公司完成，但交易成本問題使共同所有權成為必要。"},
+  {q:"半導體業中，什麼因素推動設計與製造的整合？",opts:["晶片價格下降","技術複雜度增加","市場需求降低","政府補貼"],ans:1,exp:"晶片越複雜，設計與製造之間需要更緊密的技術協作，推動垂直整合。"},
+  {q:"珠寶公司通常不擁有金礦的原因是什麼？",opts:["黃金不重要","黃金市場交易成本低","法規禁止","技術門檻太高"],ans:1,exp:"黃金是標準化商品市場，有眾多買賣方，資訊透明，交易成本很低。"}
+],
+
+m3_nav:"3. 垂直整合的成本",m3_title:"垂直整合的成本",
+m3_p1:"垂直整合並非沒有代價。首先是規模差異問題：不同生產階段的最佳規模可能差異很大。例如 UPS 每年購買約 20,000 輛貨車，但這遠低於一個有效率的組裝廠的最低經濟規模。其次是能力發展問題：專注於少數活動的企業更容易發展出獨特能力。即使是大型技術公司如 Xerox、Sony，其 IT 能力也難以匹敵 IBM、Accenture 等專業 IT 服務公司。",
+m3_p2:"激勵問題也是重要的成本。市場交易中，買方追求最佳交易、賣方追求效率與服務——這是「高動力激勵」。但在垂直整合中，內部供應商與客戶關係面臨「低動力激勵」。大學內部 IT 部門的回應速度就常比外部 IT 服務商慢得多。",
+m3_p3:"此外，垂直整合還可能帶來競爭效應風險：前向整合意味著與客戶競爭，後向整合則與供應商競爭。例如 Google 收購 Motorola 時，其他使用 Android 的手機廠商（尤其是 Samsung）可能視 Google 為不可靠的供應商。彈性問題、投資於不具吸引力的產業，以及風險複合效應，都是垂直整合的潛在缺點。",
+m3_cards:[
+  {title:"規模差異",desc:"不同生產階段的最佳規模可能相差懸殊，導致內部生產效率低落。如 UPS 自製貨車規模不足。"},
+  {title:"能力發展障礙",desc:"垂直整合限制了在各階段發展獨特能力的機會。專業服務商從多客戶經驗中學習更快。"},
+  {title:"激勵弱化",desc:"內部交易缺乏市場的「高動力激勵」，內部供應商服務品質可能不如外部競爭者。"},
+  {title:"彈性降低",desc:"面對需求波動與新產品開發，市場交易通常提供更快的回應能力。"}
+],
+m3_terms:[
+  {front:"高動力激勵\nHigh-Powered Incentives",back:"市場交易中，利潤驅動買方尋求最佳交易、賣方追求效率與服務，形成強烈的績效激勵。"},
+  {front:"低動力激勵\nLow-Powered Incentives",back:"垂直整合中，內部供應商缺乏外部市場壓力，導致服務品質與效率的激勵較弱。"},
+  {front:"風險複合效應\nCompounding Risk",back:"垂直整合使企業各生產階段緊密相連，任一階段出問題可能影響所有其他階段。"}
+],
+m3_q:[
+  {q:"UPS 不自製貨車的主要原因是什麼？",opts:["技術不足","每年需求量遠低於最低經濟規模","品質無法保證","法規限制"],ans:1,exp:"UPS 每年購買約 20,000 輛貨車，遠低於組裝廠的最低經濟規模。"},
+  {q:"為什麼專業 IT 服務商通常優於企業內部 IT 部門？",opts:["規模更大","從多客戶服務中累積學習","員工薪資更高","使用更新的設備"],ans:1,exp:"IT 服務專家從服務多個客戶中累積學習經驗，這是內部 IT 部門所缺乏的。"},
+  {q:"以下何者是「低動力激勵」的例子？",opts:["外部供應商競標","內部 IT 部門緩慢回應維修請求","新創公司追求客戶","電商平台的價格戰"],ans:1,exp:"內部 IT 部門缺乏市場競爭壓力，回應激勵較弱，是低動力激勵的典型例子。"},
+  {q:"Google 收購 Motorola 的主要競爭風險是什麼？",opts:["技術過時","Android 客戶可能轉向其他作業系統","產品價格上漲","專利訴訟"],ans:1,exp:"其他手機廠商（如 Samsung）可能視 Google 為不可靠供應商而尋找 Android 的替代品。"},
+  {q:"製造業與零售業很少垂直整合的主要原因是什麼？",opts:["法規限制","兩者需要截然不同的組織能力","消費者不接受","技術不相容"],ans:1,exp:"製造與零售需要不同的管理系統、組織能力、人力資源管理方式與領導風格。"},
+  {q:"1998 年 GM 煞車廠罷工如何說明垂直整合的風險？",opts:["增加成本","一個環節的問題導致全部 24 個組裝廠停擺","品質下降","市場份額減少"],ans:1,exp:"這是風險複合效應的典型案例：一個階段的問題波及所有其他階段。"},
+  {q:"McDonald's 不後向整合到養牛和種薯的原因是什麼？",opts:["技術門檻","農業是低利潤產業","品質控制困難","運輸成本"],ans:1,exp:"無論交易成本與協調效益如何，農業本身是低利潤產業，投資吸引力不足。"},
+  {q:"Walmart 選擇自建 IT 而非外包的原因是什麼？",opts:["成本較低","IT 與供應鏈管理緊密整合是核心競爭力","沒有合適供應商","政策要求"],ans:1,exp:"Walmart 的即時資訊系統與供應鏈管理、店內運營緊密整合，IT 是其獨特商業系統的核心。"}
+],
+
+m4_nav:"4. 自製或外購決策",m4_title:"自製或外購決策",
+m4_p1:"垂直整合無所謂好壞，一切取決於具體情境。關鍵是識別出決定市場交易相對於內部化優勢的因素。主要的決策考量包括：垂直相鄰活動中有多少廠商？是否需要特定資產投資？資訊是否對稱分佈？關係期間的不確定性有多大？",
+m4_p2:"此外，還需考慮：相鄰活動的能力持續升級有多重要？利潤激勵對績效的重要性如何？市場需求的不確定性有多大？垂直整合是否會在各階段之間傳遞風險？兩個階段的最佳營運規模是否相似？兩個階段在策略上是否相似？",
+m4_p3:"當相鄰活動的廠商數量越少、特定資產投資需求越高、資訊不對稱越嚴重、不確定性越大時，垂直整合越有利。反之，當能力發展需求越高、高動力激勵越重要、需求越不可預測、風險複合越嚴重時，垂直整合越不利。",
+m4_alert:"決策框架：垂直整合不是非此即彼的選擇。在完全市場交易與完全整合之間，存在多種混合型垂直關係。",
+m4_terms:[
+  {front:"自製或外購\nMake or Buy",back:"企業的核心垂直策略決策：將某項活動保留在內部進行（自製）還是透過市場從外部取得（外購）。"},
+  {front:"資訊不對稱\nInformation Asymmetry",back:"交易雙方擁有不同程度的資訊，容易導致機會主義行為，增加市場交易成本。"},
+  {front:"機會主義\nOpportunism",back:"Williamson 定義為「帶有詭計的自利行為」，利用不完全契約或資訊不對稱來謀取私利。"}
+],
+m4_q:[
+  {q:"以下哪項因素使垂直整合更有利？",opts:["眾多供應商","低特定資產投資","高度資訊不對稱","高市場需求波動"],ans:2,exp:"資訊不對稱越嚴重，機會主義行為越可能，垂直整合的優勢越大。"},
+  {q:"當相鄰活動廠商數量很多時，應傾向？",opts:["垂直整合","市場交易","合資企業","政府管制"],ans:1,exp:"廠商數量越多，市場競爭越充分，市場交易效率越高。"},
+  {q:"不確定性對垂直整合決策的影響是什麼？",opts:["不確定性越高，契約越難完備，整合越有利","不確定性越高越應外包","不確定性與整合決策無關","不確定性只影響價格"],ans:0,exp:"高度不確定性使完全契約難以撰寫，增加市場交易成本，有利於垂直整合。"},
+  {q:"以下哪項因素使垂直整合更不利？",opts:["高特定資產投資","少數廠商","相鄰活動的能力升級需求高","低市場需求波動"],ans:2,exp:"能力發展需求越高，專業化的優勢越大，垂直整合越不利。"},
+  {q:"兩個生產階段的最佳規模差異很大時，應傾向？",opts:["垂直整合","外包","合併","無影響"],ans:1,exp:"規模差異大意味著內部生產效率低落，傾向透過市場交易取得。"},
+  {q:"TCE 理論中，交易頻率的角色是什麼？",opts:["頻率越高越應外包","頻率越高，內部化的固定成本越容易分攤","頻率與整合決策無關","頻率只影響談判成本"],ans:1,exp:"交易頻率越高，設立內部治理結構的成本越容易被分攤，有利於整合。"},
+  {q:"Williamson 定義的機會主義是什麼？",opts:["追求合理利潤","帶有詭計的自利行為","合法的競爭策略","公開的談判立場"],ans:1,exp:"Williamson 將機會主義定義為「帶有詭計的自利行為」（self-interest seeking with guile）。"},
+  {q:"有限理性如何影響垂直整合決策？",opts:["使完全契約成為可能","使長期契約難以涵蓋所有可能情況","對決策無影響","只影響短期契約"],ans:1,exp:"有限理性意味著人無法預見所有未來情況，使完全契約不可能，增加市場交易成本。"}
+],
+
+m5_nav:"5. 垂直關係設計與趨勢",m5_title:"垂直關係設計與趨勢",
+m5_p1:"垂直關係不僅限於「自製或外購」的二元選擇。在完全市場交易與完全垂直整合之間，存在多種中間形式：長期契約、供應商夥伴關係、特許經營、合資企業等。這些關係可按兩個維度分類：雙方投入資源的承諾程度，以及關係的正式化程度。",
+m5_p2:"特許經營結合了大企業的品牌、行銷能力與商業系統，以及小企業的創業精神與在地知識。如 McDonald's、7-Eleven 的特許經營體系，同時獲得了垂直整合的協調優勢與市場交易的高動力激勵與彈性。日本汽車廠與供應商的緊密協作夥伴關係，則展示了非正式信任型垂直關係的威力。",
+m5_p3:"近年趨勢是「虛擬垂直整合」：企業透過協作型垂直夥伴關係，結合外包的專業化優勢與垂直整合的協調和知識共享優勢。代表模式包括 Toyota 的三層供應商體系、Apple 的生態系統。然而，完全虛擬的企業仍是抽象概念：系統整合者必須維持架構性能力（Architectural Capabilities）才能有效管理供應商網絡。",
+m5_cards:[
+  {title:"特許經營",desc:"結合大企業品牌與系統優勢和小企業創業精神。加盟者承擔大部分風險，支付固定權利金。"},
+  {title:"供應商夥伴關係",desc:"基於信任與相互理解的長期合作關係，提供交易安全、彈性與避免機會主義的激勵。如日本汽車業模式。"},
+  {title:"虛擬垂直整合",desc:"透過協作型垂直夥伴關係，結合外包的專業化優勢與整合的協調優勢。如 Toyota 供應鏈、Apple 生態系統。"},
+  {title:"架構性能力",desc:"系統整合者管理和協調供應商網絡所需的能力，即使外包零組件也需維持對這些技術的研發能力。"}
+],
+m5_terms:[
+  {front:"特許經營\nFranchising",back:"品牌擁有者（授權方）允許加盟者在指定區域生產和銷售其產品/服務的契約安排，結合了規模與創業精神。"},
+  {front:"架構性能力\nArchitectural Capabilities",back:"系統整合者協調供應商網絡所需的整體系統知識與管理能力，即使外包零組件也需維持。"},
+  {front:"錐型整合\nTaper Integration",back:"企業同時使用內部供應與外部供應（部分整合），既維持內部能力又利用市場效率。"}
+],
+m5_q:[
+  {q:"特許經營的主要優勢是什麼？",opts:["完全控制品質","結合規模優勢與創業激勵","消除所有風險","降低品牌價值"],ans:1,exp:"特許經營結合大企業的品牌與系統優勢，以及加盟者的創業精神與在地知識。"},
+  {q:"日本汽車廠與供應商的關係主要基於什麼？",opts:["短期價格競標","長期信任與協作","政府強制","股權投資"],ans:1,exp:"日本汽車廠與供應商建立基於信任與相互理解的長期協作夥伴關係。"},
+  {q:"Apple 生態系統屬於哪種垂直關係？",opts:["完全垂直整合","完全市場交易","協作型垂直夥伴關係","特許經營"],ans:2,exp:"Apple 主導產品開發並緊密控制智慧財產權，但整合了廣泛供應商網絡的能力與創新。"},
+  {q:"「虛擬企業」為何仍是抽象概念？",opts:["法規不允許","缺乏技術支持","需要架構性能力來協調網絡","市場太小"],ans:2,exp:"系統整合者必須維持架構性能力才能有效管理供應商網絡，不能完全依賴外部。"},
+  {q:"Zara 高度垂直整合的策略優勢是什麼？",opts:["降低成本","超快速的設計到門市週期","擴大產品範圍","減少員工"],ans:1,exp:"Zara 的緊密垂直整合實現了從設計到門市的超快速週期。"},
+  {q:"在特許經營中，風險主要由誰承擔？",opts:["授權方","加盟者","消費者","政府"],ans:1,exp:"在特許經營中，加盟者的資本承擔風險，並向授權方支付基於營收的固定權利金。"},
+  {q:"Boeing 787 Dreamliner 的開發困難說明了什麼？",opts:["垂直整合的優勢","技術變革快速時管理供應商網絡的高度複雜性","外包總是有效的","內部製造必然優越"],ans:1,exp:"Boeing 的困難顯示在快速技術變革時期，管理供應商網絡極為複雜。"},
+  {q:"以下哪種情況最適合長期契約？",opts:["標準化商品的現貨交易","需要特定投資但完全預測未來很困難","完全不確定的環境","無特定投資需求"],ans:1,exp:"長期契約適合需要一定特定投資、但情況相對可預測的交易，提供安全性並減少機會主義。"}
+],
+
+m6_nav:"6. 外部資源",m6_title:"延伸學習資源",m6_desc:"精選與垂直整合和企業策略相關的學術與實務資源。",
+mlab_nav:"7. 互動實驗室",mlab_title:"互動實驗室",mlab_desc:"透過互動模擬深入理解垂直整合的核心概念。",
+mlab_labs:[
+  {title:"交易成本 vs 行政成本模擬器",desc:"調整參數觀察何時應整合何時應外包"},
+  {title:"價值鏈整合程度分析",desc:"比較不同產業的垂直整合程度"},
+  {title:"自製外購決策矩陣",desc:"根據關鍵因素評估整合決策"},
+  {title:"垂直關係類型比較",desc:"視覺化各種垂直關係的特徵"}
+],
+
+date:"Version 2026.03.27",
+copyright:"For Educational Use Only",
+architect_label:"Architect:",
+architect_name:"Prof. Shihmin Lo",
+architect_url:"https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo"
+},
+
+en:{
+brand:"VI",
+title:"Corp Strategy: Vertical Integration",
+subtitle:"Corp Strategy: Vertical Integration",
+nav_modules:"Module Directory",nav_prev:"Previous",nav_next:"Next Module",
+key_terms:"KEY TERMINOLOGY",flip_prompt:"Click to flip",audio_read:"Audio Guide",
+quiz_title:"Module Quiz (Random 4 Questions)",
+submit:"Submit",retry:"Retry",
+score:"Score",correct:"Correct",incorrect:"Incorrect",explanation:"Explanation",
+
+analytics_title:"Learning Analytics",analytics_desc:"Track your study time, interactions, and quiz performance across modules.",analytics_form_title:"Student Information",
+analytics_group:"Group",analytics_dept:"Department",
+analytics_dept_ph:"e.g., IBS3",
+analytics_id:"Student ID",
+analytics_id_ph:"e.g., 112212099",
+analytics_name:"Name",
+analytics_name_ph:"e.g., Jimmy Lo",
+analytics_export_csv:"Export CSV Record",
+analytics_fill_required:"Please fill in all fields to unlock export",
+group_options:["G1","G2","G3","G4","G5","G6","G7","G8","Others"],
+analytics_total_time:"Total Study Time",analytics_total_clicks:"Total Interactions",
+analytics_overall_acc:"Overall Quiz Accuracy",
+analytics_module:"Module",analytics_time:"Time Spent",
+analytics_clicks:"Clicks",analytics_acc:"Accuracy",
+analytics_correct_ans_total:"Correct / Answered / Total",
+analytics_no_data:"Not yet tested",analytics_sec:"sec",analytics_times:"times",
+
+m0_nav:"0. Overview",
+m0_title:"Vertical Integration & Scope of the Firm",
+m0_intro:"Should a firm make or buy? Vertical integration determines how much of the value chain a firm controls — a central question in corporate strategy. This course examines transaction cost theory, the trade-offs of integration, and the design of alternative vertical relationships.",
+m0_why:"Why Does Vertical Integration Matter?",
+m0_why_desc:"From Disney's fully integrated entertainment empire to Nike's asset-light model, how do firms decide which activities to keep in-house and which to outsource? This 'make or buy' decision directly affects efficiency, flexibility, and competitive advantage.",
+m0_modules:[
+  {num:"01",title:"Firm Scope & Transaction Costs",desc:"Coase theory, market mechanism vs. administrative mechanism"},
+  {num:"02",title:"Benefits of Vertical Integration",desc:"Technical economies, avoiding transaction costs, coordination"},
+  {num:"03",title:"Costs of Vertical Integration",desc:"Scale differences, capability development, incentive problems"},
+  {num:"04",title:"Make or Buy Decisions",desc:"Key criteria and decision framework"},
+  {num:"05",title:"Vertical Relationships & Trends",desc:"Long-term contracts, franchising, partnerships"}
+],
+m0_stats:[
+  {val:"200+",label:"Years of Firm Evolution"},
+  {val:"9",label:"Key Decision Factors"},
+  {val:"7",label:"Types of Vertical Relations"},
+  {val:"30+",label:"Years of Outsourcing Trend"}
+],
+m0_start:"Start Learning →",
+
+m1_nav:"1. Firm Scope & Transaction Costs",m1_title:"Firm Scope & Transaction Costs",
+m1_p1:"The capitalist economy comprises two forms of organization: the market mechanism guided by prices (Adam Smith's 'invisible hand'), and the administrative mechanism of firms where managers plan and direct (Chandler's 'visible hand'). Firms exist because in some situations, internal administration is more efficient than market transactions.",
+m1_p2:"Ronald Coase posed the classic question: what determines the boundaries of the firm? The answer lies in comparing the transaction costs of markets (search, negotiation, contracting, monitoring, enforcement) with the administrative costs of organizing within the firm. When market transaction costs exceed internal administrative costs, activities tend to be internalized.",
+m1_p3:"Over the past 200 years, firm size and scope have undergone major shifts. The Industrial Revolution drove the rise of factory systems; 20th century management innovations greatly improved the administrative efficiency of large firms. However, since the 1970s, a more turbulent business environment and new ICT technologies have favored more focused firms coordinated through markets.",
+m1_cards:[
+  {title:"Market Mechanism",desc:"Independent buyers and sellers guided by market prices without conscious planning. Transaction costs include search, negotiation, contracting, monitoring, and enforcement costs."},
+  {title:"Administrative Mechanism",desc:"Managers make production and resource allocation decisions through hierarchies. Administrative costs are reduced by technology (ICT) and management innovations (accounting systems)."}
+],
+m1_terms:[
+  {front:"Transaction Costs",back:"The costs of using markets for exchanges: search, negotiation, contracting, monitoring, and enforcement costs."},
+  {front:"Administrative Costs",back:"The costs of coordinating activities internally through a firm's hierarchical organization."},
+  {front:"Scope of the Firm",back:"The range of a firm's activities, encompassing three dimensions: vertical scope, product scope, and geographical scope."}
+],
+m1_q:[
+  {q:"According to Coase, what is the main reason firms exist?",opts:["Maximize shareholder profit","Reduce market transaction costs","Increase employee welfare","Expand market share"],ans:1,exp:"Coase argued that firms exist because in some cases, internal administrative costs are lower than market transaction costs."},
+  {q:"Which is NOT a market transaction cost?",opts:["Search costs","Negotiation costs","Hierarchical management costs","Enforcement costs"],ans:2,exp:"Hierarchical management costs are internal administrative costs of the firm, not market transaction costs."},
+  {q:"What does Adam Smith's 'invisible hand' refer to?",opts:["Government regulation","Market price mechanism","Corporate management hierarchy","International trade"],ans:1,exp:"The 'invisible hand' refers to the market price mechanism that coordinates economic activity without conscious planning."},
+  {q:"What drove large firm expansion in the mid-20th century?",opts:["Internet technology","Management and organizational innovation","Government subsidies","Globalization"],ans:1,exp:"Systematic management approaches, organizational innovations (like M-form), and technologies like telephone reduced internal administrative costs."},
+  {q:"Why did firms tend to downsize after the 1970s?",opts:["Regulatory restrictions","More turbulent environment and ICT advances","Raw material shortages","Labor shortages"],ans:1,exp:"A more turbulent environment and digital ICT made smaller focused firms coordinated through markets more efficient."},
+  {q:"Which is NOT one of the three dimensions of firm scope?",opts:["Vertical scope","Product scope","Financial scope","Geographical scope"],ans:2,exp:"Firm scope includes vertical, product, and geographical scope — not financial scope."},
+  {q:"IBM mainframes best exemplify which model?",opts:["Full vertical integration","Full outsourcing","Franchising","Joint venture"],ans:0,exp:"IBM mainframes use IBM processors, OS, software, and IBM handles distribution and support — highly vertically integrated."},
+  {q:"What does HP's laptop production model demonstrate?",opts:["Advantages of vertical integration","Market mechanism can coordinate complex supply chains","Firms must make all components","Outsourcing inevitably reduces quality"],ans:1,exp:"HP outsources manufacturing to multiple contractors with components from various suppliers, showing market coordination works for complex supply chains."}
+],
+
+m2_nav:"2. Benefits of VI",m2_title:"Benefits of Vertical Integration",
+m2_p1:"The first benefit is technical economies: cost savings from physically integrating adjacent processes. For instance, steel makers integrate steelmaking with hot-rolling at a single location to reduce transportation and energy costs. Similar economies arise in pulp-and-paper production and oil refining linked with petrochemicals.",
+m2_p2:"The second benefit is avoiding transaction costs. When transactions involve transaction-specific investments, market exchanges face serious problems. Steel and steel strip producers must build matched facilities, creating bilateral monopolies where each seller faces a single buyer. This mutual dependency encourages opportunism and strategic misrepresentation.",
+m2_p3:"Empirical research confirms that transaction-specific investments drive vertical integration: in autos, specialized components are more likely made in-house than commodity items like tires; in semiconductors, more complex chips see greater design-fabrication integration. Conversely, when transaction costs are low (many buyers and sellers, standard products), market contracts work efficiently.",
+m2_cards:[
+  {title:"Technical Economies",desc:"Cost savings from physically integrating adjacent processes, reducing transportation and energy costs. E.g., steelmaking with hot-rolling."},
+  {title:"Avoiding Transaction Costs",desc:"Internalization eliminates market search, negotiation, and monitoring costs, especially when transaction-specific investments are involved."},
+  {title:"Transaction-Specific Investments",desc:"Specialized investments made for a particular relationship (site, physical, human capital) that are difficult to redeploy."},
+  {title:"Bilateral Monopoly",desc:"When both parties are locked into each other by specific investments, each facing only one counterparty, losing market competitive efficiency."}
+],
+m2_terms:[
+  {front:"Transaction-Specific\nInvestment",back:"Specialized investments made for a particular trading relationship — including site specificity, physical asset specificity, and human capital specificity — that cannot be easily redeployed."},
+  {front:"Bilateral Monopoly",back:"A situation where specific investments lock buyer and seller together, each facing only one counterparty, creating opportunities for opportunism and bargaining problems."},
+  {front:"Hold-Up Problem",back:"After making specific investments, one party can threaten to withdraw from the transaction to extract concessions, as the other party cannot easily switch partners."}
+],
+m2_q:[
+  {q:"Which is a technical economy benefit of vertical integration?",opts:["Reduced negotiation costs","Physical integration of adjacent processes saves transport/energy","Expanded market share","Improved employee incentives"],ans:1,exp:"Technical economies refer to cost savings from physically integrating adjacent production processes at a single location."},
+  {q:"Why do steel and steel strip production tend to be vertically integrated?",opts:["Lower labor costs","Transaction-specific investments create bilateral monopoly","Government regulations","Consumer preferences"],ans:1,exp:"The two stages require matched facilities, creating transaction-specific investments that lead to bilateral monopoly."},
+  {q:"When are market transactions most efficient?",opts:["Only one buyer and seller","Highly customized investments needed","Many buyers/sellers with standardized products","Highly uncertain future"],ans:2,exp:"With many buyers and sellers, readily available information, and low switching costs, market transactions are most efficient."},
+  {q:"In the auto industry, what type of components are more likely made in-house?",opts:["Standard tires","Standard spark plugs","Specialized custom parts","Standard screws"],ans:2,exp:"Specialized components involve transaction-specific investments and are more likely to be vertically integrated."},
+  {q:"When is the hold-up problem most likely?",opts:["Standard commodity trading in competitive markets","Both parties have invested heavily in specific assets","Short-term spot transactions","Government-regulated markets"],ans:1,exp:"After both parties invest in specific assets, they're locked together, enabling one party to threaten withdrawal for concessions."},
+  {q:"Why don't technical economies alone explain vertical integration?",opts:["They don't exist","Physical integration can be done by separate co-located firms","They only apply to services","They only reduce fixed costs"],ans:1,exp:"Physical integration can be achieved by adjacent independent firms, but transaction cost problems make common ownership necessary."},
+  {q:"What drives design-fabrication integration in semiconductors?",opts:["Falling chip prices","Increasing technical complexity","Declining market demand","Government subsidies"],ans:1,exp:"More complex chips require closer technical collaboration between design and fabrication, driving integration."},
+  {q:"Why don't jewelry companies typically own gold mines?",opts:["Gold isn't important","Gold market transaction costs are low","Regulations prohibit it","Technical barriers too high"],ans:1,exp:"Gold is a standardized commodity with many buyers and sellers, transparent information, and very low transaction costs."}
+],
+
+m3_nav:"3. Costs of VI",m3_title:"Costs of Vertical Integration",
+m3_p1:"Vertical integration has significant costs. First, scale differences: optimal scales may vary greatly between production stages. UPS buys about 20,000 vans yearly, far below an assembly plant's minimum efficient scale. Second, capability development: firms focusing on few activities develop distinctive capabilities more easily. Even large tech firms like Xerox and Sony cannot match IT specialists like IBM and Accenture.",
+m3_p2:"Incentive problems matter too. Market transactions feature 'high-powered incentives' — buyers seek the best deals, sellers pursue efficiency. But vertical integration creates 'low-powered incentives' — an internal IT department responds far more slowly than an external competitor would. Opening internal divisions to external competition is one way to address this.",
+m3_p3:"Additional costs include competitive effects: forward integration means competing with customers, backward integration with suppliers. When Google acquired Motorola, Android customers like Samsung might view Google as unreliable. Flexibility problems, investing in unattractive industries, and compounding risk are further drawbacks of vertical integration.",
+m3_cards:[
+  {title:"Scale Differences",desc:"Optimal scales may vary greatly between stages, leading to internal production inefficiency. E.g., UPS building its own vans."},
+  {title:"Capability Development",desc:"Vertical integration limits opportunities to develop distinctive capabilities at each stage. Specialist firms learn faster from multiple clients."},
+  {title:"Weakened Incentives",desc:"Internal transactions lack market 'high-powered incentives'; internal suppliers may underperform external competitors."},
+  {title:"Reduced Flexibility",desc:"Market transactions typically offer faster response to demand fluctuations and new product development opportunities."}
+],
+m3_terms:[
+  {front:"High-Powered\nIncentives",back:"In market transactions, profit motives drive buyers to seek the best deals and sellers to pursue efficiency and service, creating strong performance incentives."},
+  {front:"Low-Powered\nIncentives",back:"In vertical integration, internal suppliers lack external market pressure, resulting in weaker incentives for service quality and efficiency."},
+  {front:"Compounding Risk",back:"Vertical integration links all production stages tightly, so problems at any one stage can threaten production and profitability at all other stages."}
+],
+m3_q:[
+  {q:"Why doesn't UPS manufacture its own vans?",opts:["Insufficient technology","Annual demand far below minimum efficient scale","Cannot guarantee quality","Regulatory restrictions"],ans:1,exp:"UPS buys ~20,000 vans yearly, far below the minimum efficient scale of an assembly plant."},
+  {q:"Why are specialist IT firms usually better than in-house IT?",opts:["Larger scale","They accumulate learning from serving multiple clients","Higher employee salaries","Newer equipment"],ans:1,exp:"IT specialists gain learning from serving multiple clients — something in-house IT departments lack."},
+  {q:"Which exemplifies 'low-powered incentives'?",opts:["External supplier competitive bidding","Internal IT department responding slowly to repair requests","Startup pursuing customers","E-commerce price wars"],ans:1,exp:"Internal IT departments lack market competitive pressure, resulting in weak response incentives — a classic low-powered incentive example."},
+  {q:"What was the main competitive risk of Google acquiring Motorola?",opts:["Technology obsolescence","Android customers might switch to other OS","Higher product prices","Patent litigation"],ans:1,exp:"Other handset makers (especially Samsung) might view Google as an unreliable Android supplier and seek alternatives."},
+  {q:"Why is integration between manufacturing and retail rare?",opts:["Regulatory restrictions","They require fundamentally different organizational capabilities","Consumers won't accept it","Technology incompatibility"],ans:1,exp:"Manufacturing and retail need different management systems, capabilities, HR approaches, and leadership styles."},
+  {q:"How does the 1998 GM brake plant strike illustrate VI risk?",opts:["Increased costs","One stage's problem shut down all 24 assembly plants","Quality declined","Lost market share"],ans:1,exp:"This is a classic case of compounding risk: problems at one stage affecting all other stages."},
+  {q:"Why doesn't McDonald's backward integrate into cattle/potato farming?",opts:["Technical barriers","Agriculture is a low-margin industry","Quality control difficulties","Transportation costs"],ans:1,exp:"Regardless of transaction costs or coordination benefits, agriculture is inherently low-margin and unattractive for investment."},
+  {q:"Why does Walmart keep IT in-house rather than outsource?",opts:["Lower cost","IT tightly integrated with supply chain is a core competency","No suitable suppliers","Policy requirement"],ans:1,exp:"Walmart's real-time information systems are tightly integrated with supply chain management and store operations — IT is central to its unique business system."}
+],
+
+m4_nav:"4. Make or Buy Decisions",m4_title:"Make or Buy Decisions",
+m4_p1:"Vertical integration is neither good nor bad — it all depends on context. The key is identifying factors that determine the relative advantages of market transactions versus internalization. Key considerations include: How many firms are in the adjacent activity? Are transaction-specific investments needed? Is information evenly distributed? How uncertain is the relationship period?",
+m4_p2:"Additional factors include: How critical is capability upgrading in the adjacent activity? How important are profit incentives to performance? How uncertain is market demand? Does VI transmit risk between stages? How similar are the stages in optimal scale? How strategically similar are the stages?",
+m4_p3:"When there are fewer adjacent firms, higher specific investment needs, greater information asymmetry, and more uncertainty, vertical integration is more advantageous. Conversely, when capability development needs are high, high-powered incentives are important, demand is unpredictable, and risk compounding is severe, VI becomes less favorable.",
+m4_alert:"Decision Framework: Vertical integration is not an either/or choice. Between pure market transactions and full integration lie many hybrid vertical relationship forms.",
+m4_terms:[
+  {front:"Make or Buy",back:"The core vertical strategy decision: whether to perform an activity internally (make) or obtain it from external markets (buy)."},
+  {front:"Information\nAsymmetry",back:"When trading parties have different levels of information, enabling opportunistic behavior and increasing market transaction costs."},
+  {front:"Opportunism",back:"Williamson's concept of 'self-interest seeking with guile' — exploiting incomplete contracts or information asymmetry for private gain."}
+],
+m4_q:[
+  {q:"Which factor makes vertical integration more advantageous?",opts:["Many suppliers","Low specific investments","High information asymmetry","High market demand volatility"],ans:2,exp:"Greater information asymmetry increases the likelihood of opportunistic behavior, making VI more advantageous."},
+  {q:"When many firms exist in the adjacent activity, the tendency is toward?",opts:["Vertical integration","Market transactions","Joint ventures","Government regulation"],ans:1,exp:"More firms mean more competition, making market transactions more efficient."},
+  {q:"How does uncertainty affect the VI decision?",opts:["Higher uncertainty makes contracts harder to complete, favoring VI","Higher uncertainty favors outsourcing","Uncertainty is irrelevant to VI decisions","Uncertainty only affects pricing"],ans:0,exp:"High uncertainty makes complete contracts difficult, increasing market transaction costs and favoring VI."},
+  {q:"Which factor makes vertical integration less advantageous?",opts:["High specific investments","Few firms","High capability upgrading needs in adjacent activity","Low market demand volatility"],ans:2,exp:"When capability development is crucial, specialization advantages are greater, making VI less favorable."},
+  {q:"When optimal scales differ greatly between stages, the tendency is?",opts:["Vertical integration","Outsourcing","Merger","No impact"],ans:1,exp:"Large scale differences mean internal production is inefficient, favoring market transactions."},
+  {q:"What is the role of transaction frequency in TCE?",opts:["Higher frequency favors outsourcing","Higher frequency helps amortize internalization fixed costs","Frequency is irrelevant","Frequency only affects negotiation costs"],ans:1,exp:"Higher frequency makes it easier to amortize the fixed costs of internal governance structures, favoring integration."},
+  {q:"What is Williamson's definition of opportunism?",opts:["Pursuing reasonable profits","Self-interest seeking with guile","A legitimate competitive strategy","An open negotiating position"],ans:1,exp:"Williamson defined opportunism as 'self-interest seeking with guile.'"},
+  {q:"How does bounded rationality affect the VI decision?",opts:["Makes complete contracts possible","Makes long-term contracts unable to cover all contingencies","Has no effect","Only affects short-term contracts"],ans:1,exp:"Bounded rationality means people cannot foresee all future contingencies, making complete contracts impossible and increasing market transaction costs."}
+],
+
+m5_nav:"5. Vertical Relationships & Trends",m5_title:"Vertical Relationships & Trends",
+m5_p1:"Vertical relationships go beyond a simple 'make or buy' binary. Between pure market transactions and full vertical integration lie various intermediate forms: long-term contracts, supplier partnerships, franchising, joint ventures, and more. These can be classified along two dimensions: the degree of resource commitment by both parties, and the degree of formalization.",
+m5_p2:"Franchising combines the brand, marketing capabilities, and systems of large corporations with the entrepreneurship and local knowledge of small firms. McDonald's, 7-Eleven, and similar systems achieve both the coordination advantages of VI and the high-powered incentives and flexibility of market contracts. Japanese automakers' close collaborative supplier relationships demonstrate the power of informal trust-based vertical relations.",
+m5_p3:"The recent trend is 'virtual vertical integration': firms using collaborative vertical partnerships that combine the specialization benefits of outsourcing with the coordination and knowledge-sharing of VI. Leading models include Toyota's three-tier supplier system and Apple's ecosystem. However, the fully virtual corporation remains abstract — systems integrators must maintain architectural capabilities to effectively manage supplier networks.",
+m5_cards:[
+  {title:"Franchising",desc:"Combines large firm brand/system advantages with small firm entrepreneurship. Franchisee bears most risk, pays fixed royalties."},
+  {title:"Supplier Partnerships",desc:"Long-term relationships based on trust and mutual understanding, providing security, flexibility, and discouragement of opportunism. E.g., Japanese auto model."},
+  {title:"Virtual Vertical Integration",desc:"Collaborative vertical partnerships combining outsourcing specialization with integration coordination advantages. E.g., Toyota supply chain, Apple ecosystem."},
+  {title:"Architectural Capabilities",desc:"The system-wide knowledge and management ability needed by integrators to coordinate supplier networks, even when outsourcing components."}
+],
+m5_terms:[
+  {front:"Franchising",back:"A contractual arrangement where the brand owner (franchisor) permits the franchisee to produce and market products/services in a specified area, combining scale with entrepreneurship."},
+  {front:"Architectural\nCapabilities",back:"The system-level knowledge and management capabilities needed by integrators to coordinate supplier networks, even when components are outsourced."},
+  {front:"Taper Integration",back:"A firm using both internal and external supply (partial integration), maintaining internal capabilities while leveraging market efficiency."}
+],
+m5_q:[
+  {q:"What is the main advantage of franchising?",opts:["Complete quality control","Combines scale advantages with entrepreneurial incentives","Eliminates all risk","Reduces brand value"],ans:1,exp:"Franchising combines large firm brand/system advantages with franchisee entrepreneurship and local knowledge."},
+  {q:"Japanese automaker-supplier relationships are primarily based on?",opts:["Short-term competitive bidding","Long-term trust and collaboration","Government mandate","Equity investment"],ans:1,exp:"Japanese automakers build long-term collaborative partnerships based on trust and mutual understanding."},
+  {q:"Apple's ecosystem represents which type of vertical relationship?",opts:["Full vertical integration","Pure market transactions","Collaborative vertical partnership","Franchising"],ans:2,exp:"Apple leads product development and controls IP tightly but integrates the capabilities and innovations of a broad supplier network."},
+  {q:"Why does the 'virtual corporation' remain an abstract concept?",opts:["Regulations don't allow it","Lack of technology","Need architectural capabilities to coordinate networks","Markets are too small"],ans:2,exp:"Systems integrators must maintain architectural capabilities to effectively manage supplier networks — they can't rely entirely on externals."},
+  {q:"What is Zara's strategic advantage from high vertical integration?",opts:["Lower costs","Ultra-fast design-to-store cycle","Wider product range","Fewer employees"],ans:1,exp:"Zara's tight vertical integration enables an ultra-fast design-to-distribution cycle."},
+  {q:"In franchising, who primarily bears the risk?",opts:["Franchisor","Franchisee","Consumer","Government"],ans:1,exp:"In franchising, the franchisee's capital is at risk, and they pay the franchisor a fixed royalty based on revenue."},
+  {q:"What do Boeing 787 Dreamliner development difficulties illustrate?",opts:["Advantages of vertical integration","High complexity of managing supplier networks during rapid technological change","Outsourcing always works","Internal manufacturing is always superior"],ans:1,exp:"Boeing's difficulties show that managing supplier networks is highly complex during rapid technological change."},
+  {q:"Which situation best suits a long-term contract?",opts:["Spot trading of standardized commodities","Specific investments needed but future not fully predictable","Completely uncertain environment","No specific investment needed"],ans:1,exp:"Long-term contracts suit transactions needing some specific investment under relatively predictable conditions, providing security while reducing opportunism."}
+],
+
+m6_nav:"6. Resources",m6_title:"Extended Learning Resources",m6_desc:"Curated academic and practical resources on vertical integration and corporate strategy.",
+mlab_nav:"7. Interactive Lab",mlab_title:"Interactive Lab",mlab_desc:"Explore core concepts of vertical integration through interactive simulations.",
+mlab_labs:[
+  {title:"Transaction vs Administrative Cost Simulator",desc:"Adjust parameters to see when to integrate vs outsource"},
+  {title:"Value Chain Integration Analysis",desc:"Compare integration levels across industries"},
+  {title:"Make vs Buy Decision Matrix",desc:"Evaluate integration decisions based on key factors"},
+  {title:"Vertical Relationship Types Comparison",desc:"Visualize characteristics of different vertical relationships"}
+],
+
+date:"Version 2026.03.27",
+copyright:"For Educational Use Only",
+architect_label:"Architect:",
+architect_name:"Prof. Shihmin Lo",
+architect_url:"https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo"
+}
+};
+
+const TOTAL=9; // M0 + M1-M5 + M6 + M7 + M8
+
+/* ===== Reusable Components (Top-Level) ===== */
+
+const FlipCard=({front,back,t})=>{
+  const[flipped,setFlipped]=useState(false);
+  return(
+    <div className="perspective cursor-pointer h-36" onClick={()=>setFlipped(!flipped)}>
+      <div className={`transform-style-3d relative w-full h-full transition-transform duration-500 ${flipped?'rotate-y-180':''}`}>
+        <div className="backface-hidden absolute inset-0 bg-white dark:bg-slate-800 rounded-xl p-4 flex flex-col items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm">
+          <p className="font-serif font-bold text-center text-[#004030] dark:text-[#D8C3A5] text-sm leading-snug whitespace-pre-line">{front}</p>
+          <p className="text-xs text-slate-400 mt-2">{t.flip_prompt}</p>
+        </div>
+        <div className="backface-hidden rotate-y-180 absolute inset-0 bg-[#004030] dark:bg-slate-700 rounded-xl p-4 flex items-center justify-center">
+          <p className="text-sm text-center text-[#D8C3A5] dark:text-slate-200 leading-relaxed">{back}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ModuleQuiz=({questions,t,moduleId,onQuizSubmit})=>{
+  const[selected,setSelected]=useState({});
+  const[submitted,setSubmitted]=useState(false);
+  const[quizIndices]=useState(()=>[...Array(questions.length).keys()].sort(()=>Math.random()-.5).slice(0,4));
+  return(
+    <div className="mt-8 bg-slate-50 dark:bg-slate-900/50 rounded-2xl p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+      <h3 className="text-lg font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-6">{t.quiz_title}</h3>
+      {quizIndices.map((qIdx,i)=>{const q=questions[qIdx];return(
+        <div key={qIdx} className="mb-6">
+          <p className="font-bold mb-3 text-slate-800 dark:text-slate-200">{i+1}. {q.q}</p>
+          <div className="space-y-2">
+            {q.opts.map((opt,oIdx)=>(
+              <button key={oIdx} onClick={()=>!submitted&&setSelected(s=>({...s,[i]:oIdx}))}
+                className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm
+                  ${submitted
+                    ?oIdx===q.ans?'bg-green-100 border-green-500 dark:bg-green-900/30 dark:border-green-500'
+                      :selected[i]===oIdx?'bg-red-100 border-red-400 dark:bg-red-900/30 dark:border-red-400':'border-slate-200 dark:border-slate-700'
+                    :selected[i]===oIdx?'border-[#004030] dark:border-[#D8C3A5] bg-[#004030]/5 dark:bg-[#D8C3A5]/5':'border-slate-200 dark:border-slate-700 hover:border-slate-400'
+                  }`}>{opt}</button>
+            ))}
+          </div>
+          {submitted&&<p className="mt-2 text-sm text-slate-600 dark:text-slate-400 italic">{t.explanation}：{q.exp}</p>}
+        </div>
+      );})}
+      {!submitted
+        ?<button onClick={()=>{setSubmitted(true);const c=quizIndices.filter((qIdx,i)=>selected[i]===questions[qIdx].ans).length;onQuizSubmit(moduleId,c,quizIndices.length);}}
+            disabled={Object.keys(selected).length<quizIndices.length}
+            className="px-6 py-2 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg disabled:opacity-40 transition-colors">{t.submit}</button>
+        :<div className="flex items-center gap-4 flex-wrap">
+          <span className="font-bold text-[#004030] dark:text-[#D8C3A5]">{t.score}: {quizIndices.filter((qIdx,i)=>selected[i]===questions[qIdx].ans).length}/{quizIndices.length}</span>
+          <button onClick={()=>{setSelected({});setSubmitted(false);}}
+            className="px-6 py-2 border border-[#004030] dark:border-[#D8C3A5] text-[#004030] dark:text-[#D8C3A5] font-bold rounded-lg transition-colors">{t.retry}</button>
+        </div>
+      }
+    </div>
+  );
+};
+
+const LinkCard=({label,url,desc})=>(
+  <a href={url} target="_blank" rel="noopener noreferrer"
+    className="block bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:border-[#004030] dark:hover:border-[#D8C3A5] hover:shadow-md transition-all group">
+    <div className="flex items-start justify-between gap-2 mb-2">
+      <span className="font-bold font-serif text-sm text-[#004030] dark:text-[#D8C3A5] group-hover:underline leading-snug">{label}</span>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 mt-0.5 opacity-40"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </div>
+    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{desc}</p>
+  </a>
+);
+
+const H2=({children,icon,number})=>(
+  <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-black text-[#004030] dark:text-[#D8C3A5] mb-6 flex items-center gap-3">
+    {icon&&<span className="text-2xl">{icon}</span>}
+    {number!==undefined&&<span>{number}.</span>}
+    <span>{children}</span>
+  </h2>
+);
+
+/* ===== Lab Components (Top-Level) ===== */
+
+const CostSimulator=({lang})=>{
+  const[assetSpec,setAssetSpec]=useState(50);
+  const[uncertainty,setUncertainty]=useState(50);
+  const[numFirms,setNumFirms]=useState(50);
+  const tc=Math.round((assetSpec*0.4+uncertainty*0.3+(100-numFirms)*0.3));
+  const ac=Math.round(40+assetSpec*0.1+uncertainty*0.05);
+  const recommend=tc>ac;
+  return(
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'交易成本 vs 行政成本模擬器':'Transaction Cost vs Administrative Cost Simulator'}</h4>
+      <div className="space-y-4">
+        <div><label className="text-sm font-bold text-slate-600 dark:text-slate-400">{lang==='zh'?'資產專屬性':'Asset Specificity'}: {assetSpec}%</label><input type="range" min="0" max="100" value={assetSpec} onChange={e=>setAssetSpec(+e.target.value)} className="w-full"/></div>
+        <div><label className="text-sm font-bold text-slate-600 dark:text-slate-400">{lang==='zh'?'不確定性':'Uncertainty'}: {uncertainty}%</label><input type="range" min="0" max="100" value={uncertainty} onChange={e=>setUncertainty(+e.target.value)} className="w-full"/></div>
+        <div><label className="text-sm font-bold text-slate-600 dark:text-slate-400">{lang==='zh'?'供應商數量':'Number of Suppliers'}: {numFirms}%</label><input type="range" min="0" max="100" value={numFirms} onChange={e=>setNumFirms(+e.target.value)} className="w-full"/></div>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <div className="text-center p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700">
+          <div className="text-2xl font-black text-amber-600">{tc}</div>
+          <div className="text-xs text-slate-500">{lang==='zh'?'交易成本指數':'Transaction Cost Index'}</div>
+        </div>
+        <div className="text-center p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700">
+          <div className="text-2xl font-black text-blue-600">{ac}</div>
+          <div className="text-xs text-slate-500">{lang==='zh'?'行政成本指數':'Administrative Cost Index'}</div>
+        </div>
+      </div>
+      <div className={`mt-4 p-3 rounded-lg text-center font-bold text-sm ${recommend?'bg-[#004030]/10 text-[#004030] dark:bg-[#D8C3A5]/10 dark:text-[#D8C3A5]':'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'}`}>
+        {recommend?(lang==='zh'?'建議：垂直整合 (TC > AC)':'Recommendation: Vertical Integration (TC > AC)'):(lang==='zh'?'建議：市場交易 (TC ≤ AC)':'Recommendation: Market Transaction (TC ≤ AC)')}
+      </div>
+    </div>
+  );
+};
+
+const ValueChainLab=({lang})=>{
+  const industries=[
+    {name:lang==='zh'?'鋼鐵業':'Steel',stages:[90,95,70,40],color:'#dc2626'},
+    {name:lang==='zh'?'汽車業':'Automotive',stages:[30,80,85,60],color:'#2563eb'},
+    {name:lang==='zh'?'電子業':'Electronics',stages:[70,20,80,30],color:'#16a34a'},
+    {name:lang==='zh'?'服裝業':'Apparel',stages:[20,30,40,90],color:'#9333ea'}
+  ];
+  const stageLabels=lang==='zh'?['原料','製造','行銷','零售']:['Raw Materials','Manufacturing','Marketing','Retail'];
+  return(
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'產業價值鏈整合程度':'Industry Value Chain Integration Levels'}</h4>
+      <div className="space-y-4">
+        {industries.map((ind,i)=>(
+          <div key={i}>
+            <p className="text-sm font-bold mb-2" style={{color:ind.color}}>{ind.name}</p>
+            <div className="grid grid-cols-4 gap-1">
+              {ind.stages.map((v,j)=>(
+                <div key={j} className="text-center">
+                  <div className="h-16 rounded relative bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                    <div className="absolute bottom-0 w-full rounded transition-all duration-500" style={{height:`${v}%`,backgroundColor:ind.color,opacity:0.7}}/>
+                  </div>
+                  <p className="text-[10px] mt-1 text-slate-500">{stageLabels[j]}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const MakeBuyMatrix=({lang})=>{
+  const[scores,setScores]=useState([3,3,3,3,3]);
+  const factors=lang==='zh'
+    ?['資產專屬性','不確定性','資訊不對稱','交易頻率','能力發展需求']
+    :['Asset Specificity','Uncertainty','Info Asymmetry','Transaction Frequency','Capability Need'];
+  const viScore=scores[0]+scores[1]+scores[2]+scores[3]-scores[4];
+  const maxScore=20;
+  const pct=Math.round((viScore/maxScore)*100);
+  return(
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'自製/外購決策矩陣':'Make vs Buy Decision Matrix'}</h4>
+      <div className="space-y-3">
+        {factors.map((f,i)=>(
+          <div key={i} className="flex items-center gap-3">
+            <span className="text-xs w-24 shrink-0 text-slate-600 dark:text-slate-400">{f}</span>
+            <input type="range" min="1" max="5" value={scores[i]} onChange={e=>{const n=[...scores];n[i]=+e.target.value;setScores(n);}} className="flex-1"/>
+            <span className="text-sm font-bold w-6 text-right text-[#004030] dark:text-[#D8C3A5]">{scores[i]}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 bg-slate-100 dark:bg-slate-700 rounded-full h-4 overflow-hidden">
+        <div className="h-full bg-[#004030] dark:bg-[#D8C3A5] transition-all duration-300 rounded-full" style={{width:`${Math.max(5,pct)}%`}}/>
+      </div>
+      <p className="text-center text-sm mt-2 font-bold text-slate-600 dark:text-slate-400">
+        {lang==='zh'?'整合傾向':'Integration Tendency'}: {pct}% → {pct>60?(lang==='zh'?'傾向自製':'Lean Make'):pct>40?(lang==='zh'?'混合策略':'Hybrid'):(lang==='zh'?'傾向外購':'Lean Buy')}
+      </p>
+    </div>
+  );
+};
+
+const RelationshipComparison=({lang})=>{
+  const types=[
+    {name:lang==='zh'?'現貨交易':'Spot',commit:10,formal:20},
+    {name:lang==='zh'?'長期契約':'Long-term',commit:35,formal:80},
+    {name:lang==='zh'?'特許經營':'Franchise',commit:55,formal:85},
+    {name:lang==='zh'?'合資企業':'JV',commit:75,formal:70},
+    {name:lang==='zh'?'夥伴關係':'Partnership',commit:60,formal:30},
+    {name:lang==='zh'?'垂直整合':'Full VI',commit:95,formal:40}
+  ];
+  return(
+    <div className="bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-6 border border-slate-200 dark:border-slate-700">
+      <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] mb-4">{lang==='zh'?'垂直關係類型分布圖':'Vertical Relationship Type Map'}</h4>
+      <div className="relative bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4" style={{height:'220px'}}>
+        <div className="absolute bottom-4 left-12 right-4 h-px bg-slate-300 dark:bg-slate-600"/>
+        <div className="absolute bottom-4 left-12 top-4 w-px bg-slate-300 dark:bg-slate-600"/>
+        <span className="absolute bottom-0 left-1/2 text-[10px] text-slate-400">{lang==='zh'?'承諾程度 →':'Commitment →'}</span>
+        <span className="absolute top-1/2 left-0 text-[10px] text-slate-400 -rotate-90 origin-center" style={{transformOrigin:'center'}}>{lang==='zh'?'正式化 ↑':'Formality ↑'}</span>
+        {types.map((tp,i)=>(
+          <div key={i} className="absolute flex items-center justify-center"
+            style={{left:`${12+tp.commit*0.8}%`,bottom:`${4+tp.formal*0.85*2}px`,transform:'translate(-50%,50%)'}}>
+            <div className="w-8 h-8 rounded-full bg-[#004030] dark:bg-[#D8C3A5] opacity-70 flex items-center justify-center">
+              <span className="text-[8px] text-white dark:text-[#004030] font-bold">{i+1}</span>
+            </div>
+            <span className="absolute -bottom-4 text-[9px] text-slate-500 whitespace-nowrap">{tp.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* ===== MAIN APP ===== */
+function App(){
+  const[lang,setLang]=useState('zh');
+  const[isDark,setIsDark]=useState(false);
+  const[module,setModule]=useState(0);
+  const[menuOpen,setMenuOpen]=useState(false);
+  const[ttsState,setTtsState]=useState('idle');
+  const[studentInfo,setStudentInfo]=useState({group:'',dept:'',id:'',name:''});
+  const[analytics,setAnalytics]=useState({time:Array(TOTAL).fill(0),clicks:Array(TOTAL).fill(0),quizCorrect:Array(TOTAL).fill(0),quizTotal:Array(TOTAL).fill(0)});
+  const contentRef=useRef(null);
+  const menuRef=useRef(null);
+  const t=dict[lang];
+
+  useEffect(()=>{document.documentElement.classList.toggle('dark',isDark);},[isDark]);
+  useEffect(()=>{const iv=setInterval(()=>{setAnalytics(a=>{const nt=[...a.time];nt[module]+=1;return{...a,time:nt};});},1000);return()=>clearInterval(iv);},[module]);
+  useEffect(()=>{window.scrollTo({top:0,behavior:'smooth'});window.speechSynthesis&&window.speechSynthesis.cancel();setTtsState('idle');},[module]);
+  useEffect(()=>{if(!menuOpen)return;const h=e=>{if(menuRef.current&&!menuRef.current.contains(e.target))setMenuOpen(false);};document.addEventListener('mousedown',h);return()=>document.removeEventListener('mousedown',h);},[menuOpen]);
+
+  const handleClick=useCallback(()=>{setAnalytics(a=>{const nc=[...a.clicks];nc[module]+=1;return{...a,clicks:nc};});},[module]);
+  const handleQuizSubmit=(mid,correct,total)=>{setAnalytics(a=>{const qc=[...a.quizCorrect],qt=[...a.quizTotal];qc[mid]+=correct;qt[mid]+=total;return{...a,quizCorrect:qc,quizTotal:qt};});};
+
+  const modulesList=[
+    {id:0,icon:'📋',num:0,title:t.m0_nav},
+    {id:1,icon:'📘',num:1,title:t.m1_nav},
+    {id:2,icon:'✅',num:2,title:t.m2_nav},
+    {id:3,icon:'⚠️',num:3,title:t.m3_nav},
+    {id:4,icon:'🎯',num:4,title:t.m4_nav},
+    {id:5,icon:'🤝',num:5,title:t.m5_nav},
+    {id:6,icon:'🌐',num:6,title:t.m6_nav},
+    {id:7,icon:'⚡',num:7,title:t.mlab_nav},
+    {id:8,icon:'📊',num:8,title:lang==='zh'?'8. 學習歷程':'8. Analytics'}
+  ];
+
+  const handleTTS=(action)=>{
+    if(!('speechSynthesis' in window))return;
+    if(action==='stop'){window.speechSynthesis.cancel();setTtsState('idle');return;}
+    if(action==='pause'){window.speechSynthesis.pause();setTtsState('paused');return;}
+    if(action==='play'){
+      if(ttsState==='paused'){window.speechSynthesis.resume();setTtsState('playing');return;}
+      window.speechSynthesis.cancel();
+      const sep=lang==='zh'?'。 ':'. ';
+      let texts=[];
+      if(module===0){texts=[t.m0_title,t.m0_intro,t.m0_why,t.m0_why_desc,...(t.m0_stats||[]).map(s=>`${s.label}: ${s.val}`),...(t.m0_modules||[]).map(m=>`${m.title}. ${m.desc}`)].filter(Boolean);}
+      else if(module>=1&&module<=5){
+        const mk=`m${module}`;
+        texts=[t[`${mk}_title`],...[1,2,3,4,5].map(n=>t[`${mk}_p${n}`]).filter(Boolean),...(t[`${mk}_cards`]||[]).map(c=>`${c.title}. ${c.desc}`),...(t[`${mk}_terms`]||[]).flatMap(term=>[term.front,term.back]),t[`${mk}_alert`]].filter(Boolean);
+      }else if(module===6){texts=[t.m6_title,t.m6_desc].filter(Boolean);}
+      else if(module===7){texts=[t.mlab_title,t.mlab_desc,...(t.mlab_labs||[]).map(l=>`${l.title}. ${l.desc}`)].filter(Boolean);}
+      else{texts=[t.analytics_title,t.analytics_desc].filter(Boolean);}
+      const text=texts.join(sep);
+      const utterance=new SpeechSynthesisUtterance(text);
+      utterance.rate=0.95;
+      const voices=window.speechSynthesis.getVoices();
+      if(lang==='zh'){const v=voices.find(v=>v.lang==='zh-TW'&&v.name.includes('Yating'))||voices.find(v=>v.lang==='zh-TW')||voices.find(v=>v.lang.startsWith('zh'));if(v)utterance.voice=v;utterance.lang='zh-TW';}
+      else{const v=voices.find(v=>v.lang==='en-GB'&&(v.name.includes('Male')||v.name.includes('Daniel')))||voices.find(v=>v.lang==='en-GB')||voices.find(v=>v.lang.startsWith('en'));if(v)utterance.voice=v;utterance.lang='en-GB';}
+      utterance.onend=()=>setTtsState('idle');utterance.onerror=()=>setTtsState('idle');
+      window.speechSynthesis.speak(utterance);setTtsState('playing');
+    }
+  };
+
+  const exportCSV=()=>{
+    if(!studentInfo.group||!studentInfo.dept||!studentInfo.id||!studentInfo.name)return;
+    const bom='\uFEFF';
+    let csv=bom+'Module,Time(sec),Clicks,Correct,Answered,Total Questions\n';
+    modulesList.forEach((m,i)=>{csv+=`"${m.title.replace(/"/g,'""')}",${analytics.time[i]},${analytics.clicks[i]},${analytics.quizCorrect[i]},${analytics.quizTotal[i]},${i>=1&&i<=5?8:0}\n`;});
+    csv+=`\nGroup,${studentInfo.group}\nDept,${studentInfo.dept}\nID,${studentInfo.id}\nName,${studentInfo.name}\n`;
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`VI_Analytics_${studentInfo.id}.csv`;a.click();URL.revokeObjectURL(url);
+  };
+
+  const renderResources=()=>{
+    const links=[
+      {label:lang==='zh'?'Grant: 垂直整合與企業範疇 (Ch.11)':'Grant: Vertical Integration & Scope of the Firm (Ch.11)',url:'https://scholar.google.com',desc:lang==='zh'?'Robert M. Grant《Contemporary Strategy Analysis》教科書第 11 章':'Robert M. Grant "Contemporary Strategy Analysis" Chapter 11'},
+      {label:lang==='zh'?'Williamson 交易成本經濟學':'Williamson Transaction Cost Economics',url:'https://scholar.google.com',desc:lang==='zh'?'Oliver Williamson 的經典著作，奠定 TCE 理論基礎':'Oliver Williamson\'s classic work establishing TCE theoretical foundations'},
+      {label:lang==='zh'?'Coase: 企業的本質 (1937)':'Coase: The Nature of the Firm (1937)',url:'https://scholar.google.com',desc:lang==='zh'?'Ronald Coase 的開創性論文，提出交易成本解釋企業存在的原因':'Ronald Coase\'s seminal paper explaining why firms exist through transaction costs'},
+      {label:lang==='zh'?'HBR: 垂直整合策略':'HBR: Vertical Integration Strategies',url:'https://hbr.org',desc:lang==='zh'?'Harvard Business Review 相關文章與案例分析':'Harvard Business Review articles and case analyses'}
+    ];
+    const otherLinks=[
+      {icon:'📚',cat:lang==='zh'?'教科書與學術文獻':'Textbooks & Academic Literature',items:[
+        {label:lang==='zh'?'Barney & Hesterly: 策略管理':'Barney & Hesterly: Strategic Management',url:'https://scholar.google.com',desc:lang==='zh'?'垂直整合章節的替代教科書觀點':'Alternative textbook perspective on vertical integration'},
+        {label:lang==='zh'?'Besanko et al.: 策略經濟學':'Besanko et al.: Economics of Strategy',url:'https://scholar.google.com',desc:lang==='zh'?'從經濟學角度深入分析自製或外購決策':'In-depth economic analysis of make-or-buy decisions'}
+      ]},
+      {icon:'🎬',cat:lang==='zh'?'影片與多媒體':'Videos & Multimedia',items:[
+        {label:lang==='zh'?'Khan Academy: 垂直整合':'Khan Academy: Vertical Integration',url:'https://www.khanacademy.org',desc:lang==='zh'?'簡明動畫解說垂直整合基本概念':'Clear animated explanation of VI fundamentals'},
+        {label:lang==='zh'?'Toyota 供應鏈紀錄片':'Toyota Supply Chain Documentary',url:'https://www.youtube.com',desc:lang==='zh'?'日本汽車業垂直夥伴關係的實際案例':'Real-world example of Japanese auto industry vertical partnerships'}
+      ]}
+    ];
+    return(
+      <div className="space-y-10 animate-fade-in">
+        <H2 icon={modulesList[6].icon} number={6}>{t.m6_title}</H2>
+        <p className="text-slate-600 dark:text-slate-400">{t.m6_desc}</p>
+        <div>
+          <div className="flex items-center gap-4 mb-5 flex-wrap">
+            <a href="https://scholar.google.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 bg-[#004030] hover:bg-[#002b20] text-white px-5 py-2.5 rounded-xl transition-colors"><span className="text-[#D8C3A5] text-xl font-black font-serif">TCE</span><span className="text-sm opacity-80">{lang==='zh'?'學術資料庫':'Academic Database'}</span></a>
+          </div>
+          <div className="grid md:grid-cols-2 gap-3">{links.map((l,i)=><LinkCard key={i} {...l}/>)}</div>
+        </div>
+        <div>
+          <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-5">{lang==='zh'?'其他精選資源':'Other Curated Resources'}</h3>
+          {otherLinks.map((sec,si)=>(
+            <div key={si} className="mb-6">
+              <h4 className="flex items-center gap-2 text-base font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-3"><span>{sec.icon}</span>{sec.cat}</h4>
+              <div className="grid md:grid-cols-2 gap-3">{sec.items.map((l,i)=><LinkCard key={i} {...l}/>)}</div>
+            </div>
+          ))}
+        </div>
+        <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 rounded-xl p-5 border border-[#004030]/20 dark:border-[#D8C3A5]/20">
+          <p className="text-sm text-slate-600 dark:text-slate-400">⚠️ {lang==='zh'?'以上連結僅供教學參考，實際可用性可能因時間而異。請以最新版本為準。':'Links are for educational reference only. Availability may change over time. Please refer to the latest versions.'}</p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderLab=()=>(
+    <div className="space-y-8 animate-fade-in">
+      <H2 icon={modulesList[7].icon} number={7}>{t.mlab_title}</H2>
+      <p className="text-slate-600 dark:text-slate-400">{t.mlab_desc}</p>
+      <CostSimulator lang={lang}/>
+      <div className="grid md:grid-cols-2 gap-6">
+        <ValueChainLab lang={lang}/>
+        <MakeBuyMatrix lang={lang}/>
+      </div>
+      <RelationshipComparison lang={lang}/>
+    </div>
+  );
+
+  const renderAnalytics=()=>{
+    const totalTime=analytics.time.reduce((a,b)=>a+b,0);
+    const totalClicks=analytics.clicks.reduce((a,b)=>a+b,0);
+    const totalCorrect=analytics.quizCorrect.reduce((a,b)=>a+b,0);
+    const totalAnswered=analytics.quizTotal.reduce((a,b)=>a+b,0);
+    const overallAcc=totalAnswered>0?Math.round(totalCorrect/totalAnswered*100):0;
+    const canExport=studentInfo.group&&studentInfo.dept&&studentInfo.id&&studentInfo.name;
+    return(
+      <div className="space-y-8 animate-fade-in">
+        <H2 icon={modulesList[8].icon} number={8}>{t.analytics_title}</H2>
+        <p className="text-slate-600 dark:text-slate-400">{t.analytics_desc}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center border border-slate-200 dark:border-slate-700"><div className="text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{totalTime}{t.analytics_sec}</div><div className="text-xs text-slate-500">{t.analytics_total_time}</div></div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center border border-slate-200 dark:border-slate-700"><div className="text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{totalClicks}{t.analytics_times}</div><div className="text-xs text-slate-500">{t.analytics_total_clicks}</div></div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center border border-slate-200 dark:border-slate-700"><div className="text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{overallAcc}%</div><div className="text-xs text-slate-500">{t.analytics_overall_acc}</div></div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead><tr className="bg-[#004030] text-white dark:bg-slate-700">
+              <th className="p-2 text-left">{t.analytics_module}</th><th className="p-2">{t.analytics_time}</th><th className="p-2">{t.analytics_clicks}</th><th className="p-2">{t.analytics_correct_ans_total}</th>
+            </tr></thead>
+            <tbody>{modulesList.map((m,i)=>(
+              <tr key={i} className="border-b border-slate-200 dark:border-slate-700">
+                <td className="p-2 text-xs">{m.icon} {m.title}</td>
+                <td className="p-2 text-center">{analytics.time[i]}{t.analytics_sec}</td>
+                <td className="p-2 text-center">{analytics.clicks[i]}{t.analytics_times}</td>
+                <td className="p-2 text-center">{analytics.quizTotal[i]>0?`${analytics.quizCorrect[i]}/${analytics.quizTotal[i]}/${i>=1&&i<=5?8:0}`:t.analytics_no_data}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>
+        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+          <h3 className="font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-4">{t.analytics_form_title}</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_group}</label><select value={studentInfo.group} onChange={e=>setStudentInfo(s=>({...s,group:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"><option value="">{lang==='zh'?'請選擇':'Select'}</option>{t.group_options.map(g=><option key={g} value={g}>{g}</option>)}</select></div>
+            <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_dept}</label><input placeholder={t.analytics_dept_ph} value={studentInfo.dept} onChange={e=>setStudentInfo(s=>({...s,dept:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"/></div>
+            <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_id}</label><input placeholder={t.analytics_id_ph} value={studentInfo.id} onChange={e=>setStudentInfo(s=>({...s,id:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"/></div>
+            <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_name}</label><input placeholder={t.analytics_name_ph} value={studentInfo.name} onChange={e=>setStudentInfo(s=>({...s,name:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"/></div>
+          </div>
+          <button onClick={exportCSV} disabled={!canExport} className={`mt-4 px-6 py-2 font-bold rounded-lg transition-colors ${canExport?'bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] hover:bg-[#002b20]':'bg-slate-300 text-slate-500 cursor-not-allowed'}`}>{canExport?t.analytics_export_csv:t.analytics_fill_required}</button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderModule=(mk,mi)=>{
+    const cards=t[`${mk}_cards`]||[];
+    return(
+      <div className="space-y-6 text-lg leading-relaxed text-slate-700 dark:text-slate-300 animate-fade-in">
+        <H2 icon={modulesList[mi].icon} number={mi}>{t[`${mk}_title`]}</H2>
+        <p>{t[`${mk}_p1`]}</p>
+        <p className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg italic font-serif text-base">{t[`${mk}_p2`]}</p>
+        {t[`${mk}_p3`]&&<p>{t[`${mk}_p3`]}</p>}
+        {t[`${mk}_alert`]&&<div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 p-4 rounded-r-lg"><p className="text-sm text-amber-800 dark:text-amber-300 font-bold">{t[`${mk}_alert`]}</p></div>}
+        {cards.length>0&&<div className="grid md:grid-cols-2 gap-4">{cards.map((c,i)=>(
+          <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm">
+            <h4 className="font-serif font-bold text-[#004030] dark:text-[#D8C3A5] mb-2">{c.title}</h4>
+            <p className="text-sm text-slate-600 dark:text-slate-400">{c.desc}</p>
+          </div>
+        ))}</div>}
+        <div className="mt-8">
+          <h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 mb-4">{t.key_terms}</h3>
+          <div key={`terms-${module}`} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {(t[`${mk}_terms`]||[]).map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}
+          </div>
+        </div>
+        <ModuleQuiz key={`quiz-${module}`} questions={t[`${mk}_q`]} t={t} moduleId={module} onQuizSubmit={handleQuizSubmit}/>
+      </div>
+    );
+  };
+
+  const renderContent=()=>{
+    switch(module){
+      case 0: return(
+        <div className="space-y-8 text-lg leading-relaxed text-slate-700 dark:text-slate-300 animate-fade-in">
+          <div className="bg-[#004030] dark:bg-slate-800 rounded-2xl p-6 sm:p-8 text-white">
+            <p className="text-xs font-bold uppercase tracking-widest text-[#D8C3A5] mb-3">{lang==='zh'?'課程簡介':'Course Introduction'}</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-black text-white mb-4">{t.m0_title}</h2>
+            <p className="text-[#D8C3A5]/90 text-base leading-relaxed">{t.m0_intro}</p>
+          </div>
+          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border-l-4 border-[#D8C3A5] shadow-sm">
+            <h3 className="text-xl font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-3">{t.m0_why}</h3>
+            <p className="text-base text-slate-600 dark:text-slate-400">{t.m0_why_desc}</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{t.m0_stats.map((s,i)=>(
+            <div key={i} className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="text-2xl md:text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5] mb-1">{s.val}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{s.label}</div>
+            </div>
+          ))}</div>
+          <div>
+            <h3 className="text-lg font-bold uppercase tracking-wider text-slate-500 mb-4">{lang==='zh'?'課程模組':'Course Modules'}</h3>
+            <div className="space-y-3">{t.m0_modules.map((m,i)=>(
+              <button key={i} onClick={()=>setModule(i+1)} className="w-full flex items-center gap-5 bg-white dark:bg-slate-800 rounded-xl px-6 py-4 border border-slate-200 dark:border-slate-700 hover:border-[#004030] dark:hover:border-[#D8C3A5] hover:shadow-md transition-all text-left group">
+                <div className="text-3xl font-black font-serif text-[#D8C3A5] w-10 shrink-0">{m.num}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-1">{m.title}</div>
+                  <div className="text-sm text-slate-500">{m.desc}</div>
+                </div>
+                <IconChevronRight size={20} className="text-slate-300 group-hover:text-[#004030] dark:group-hover:text-[#D8C3A5] transition-colors shrink-0"/>
+              </button>
+            ))}</div>
+          </div>
+          <div className="flex justify-end"><button onClick={()=>setModule(1)} className="px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-serif font-bold hover:bg-[#002b20] dark:hover:bg-white rounded-lg shadow-md transition-colors">{t.m0_start}</button></div>
+        </div>
+      );
+      case 1: return renderModule('m1',1);
+      case 2: return renderModule('m2',2);
+      case 3: return renderModule('m3',3);
+      case 4: return renderModule('m4',4);
+      case 5: return renderModule('m5',5);
+      case 6: return renderResources();
+      case 7: return renderLab();
+      case 8: return renderAnalytics();
+      default: return null;
+    }
+  };
+
+  return(
+    <div className="min-h-screen bg-[#f4f4f4] dark:bg-[#121212] font-sans flex flex-col overflow-x-hidden pt-16">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 h-16 bg-[#004030] dark:bg-slate-900 text-white z-50 shadow-lg border-b border-[#D8C3A5]/30">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {/* Hamburger */}
+            <div className="relative" ref={menuRef}>
+              <button onClick={()=>setMenuOpen(!menuOpen)} className="p-2 hover:bg-white/10 rounded-lg transition-colors" aria-label="Toggle menu">{menuOpen?<IconX size={20}/>:<IconMenu size={20}/>}</button>
+              {menuOpen&&(
+                <div className="absolute top-full left-0 mt-1 w-64 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5rem)] overflow-y-auto bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 z-[100] overflow-x-hidden">
+                  <div className="bg-[#004030]/5 dark:bg-[#D8C3A5]/5 px-4 py-2 border-b border-slate-200 dark:border-slate-700"><p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{t.nav_modules}</p></div>
+                  {modulesList.map(m=>(
+                    <button key={m.id} onClick={()=>{setModule(m.id);setMenuOpen(false);}} className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors text-left ${module===m.id?'bg-[#004030] text-white dark:bg-[#D8C3A5]/20 dark:text-[#D8C3A5] font-bold':'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50'}`}>
+                      <span className={module===m.id?'text-[#D8C3A5]':'opacity-50'}>{m.icon}</span>
+                      <span className="truncate">{m.title}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Brand */}
+            <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className="flex items-center gap-2 text-white hover:text-[#D8C3A5] transition-colors">
+              <span className="font-serif font-black text-[#D8C3A5] text-lg tracking-widest">{t.brand}</span>
+              <span className="font-serif font-bold text-white text-sm hidden sm:inline">{t.title}</span>
+            </button>
+          </div>
+          {/* Right Controls */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 mr-1 sm:mr-2">
+              {ttsState==='idle'&&<button onClick={()=>handleTTS('play')} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors" title={t.audio_read}><IconPlay size={16}/></button>}
+              {ttsState==='playing'&&<><button onClick={()=>handleTTS('pause')} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"><IconPause size={16}/></button><button onClick={()=>handleTTS('stop')} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"><IconSquare size={16}/></button></>}
+              {ttsState==='paused'&&<><button onClick={()=>handleTTS('play')} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"><IconPlay size={16}/></button><button onClick={()=>handleTTS('stop')} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors"><IconSquare size={16}/></button></>}
+            </div>
+            <button onClick={()=>setLang(l=>l==='zh'?'en':'zh')} className="px-2 py-1 text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 rounded-lg transition-colors">{lang==='zh'?'EN':'中'}</button>
+            <button onClick={()=>setIsDark(d=>!d)} className="p-1.5 sm:p-2 hover:bg-white/10 rounded-lg transition-colors">{isDark?<IconSun size={18}/>:<IconMoon size={18}/>}</button>
+          </div>
+        </div>
+      </header>
+
+      {/* Body */}
+      <div className="flex-1 flex max-w-7xl mx-auto w-full px-3 sm:px-4 lg:px-6 py-6 gap-6">
+        {/* Sidebar */}
+        <aside className="hidden md:block w-64 shrink-0">
+          <div className="sticky top-20 space-y-1">
+            {modulesList.map(m=>(
+              <button key={m.id} onClick={()=>setModule(m.id)} className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all text-left ${module===m.id?'bg-[#004030] text-white dark:bg-[#D8C3A5]/20 dark:text-[#D8C3A5] font-bold shadow-sm':'text-slate-600 dark:text-slate-400 hover:bg-white dark:hover:bg-slate-800 hover:shadow-sm'}`}>
+                <span className={module===m.id?'text-[#D8C3A5]':'opacity-50'}>{m.icon}</span>
+                <span className="truncate">{m.title}</span>
+              </button>
+            ))}
+          </div>
+        </aside>
+
+        {/* Main */}
+        <main className="flex-1 min-w-0" onClick={handleClick} ref={contentRef}>
+          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-4 sm:p-6 md:p-8">
+            {renderContent()}
+            {/* Bottom Nav */}
+            <div className="mt-12 flex justify-between items-center pt-8 border-t border-slate-300 dark:border-slate-700">
+              <button onClick={()=>setModule(Math.max(0,module-1))} disabled={module===0} className="px-4 sm:px-6 py-3 font-serif font-bold text-slate-500 hover:text-[#004030] dark:hover:text-[#D8C3A5] disabled:opacity-0 uppercase text-sm tracking-wider flex items-center transition-colors">← {t.nav_prev}</button>
+              <button onClick={()=>setModule(Math.min(TOTAL-1,module+1))} disabled={module===TOTAL-1} className="px-6 sm:px-8 py-3 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-serif font-bold hover:bg-[#002b20] dark:hover:bg-white disabled:opacity-0 uppercase text-sm tracking-wider shadow-md flex items-center transition-colors">{t.nav_next} <IconArrowRight size={16} className="ml-2"/></button>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Footer */}
+      <footer className="h-8 bg-[#004030] flex items-center justify-between px-4 shrink-0">
+        <span className="text-[#D8C3A5]/60 text-[10px] sm:text-xs truncate">{t.date} · {t.copyright}</span>
+        <span className="text-[#D8C3A5]/60 text-[10px] sm:text-xs flex items-center gap-3">
+          <span className="flex items-center gap-1">Architect:&nbsp;<a href={t.architect_url} target="_blank" rel="noopener noreferrer" className="text-[#D8C3A5] hover:text-white underline underline-offset-2 transition-colors">Prof. Shihmin Lo</a></span>
+          <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})} className="text-[#D8C3A5] hover:text-white transition-colors font-bold cursor-pointer">Top ↑</button>
+        </span>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
