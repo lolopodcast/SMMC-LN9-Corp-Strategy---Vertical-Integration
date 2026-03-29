@@ -56,6 +56,12 @@ const IconZap=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" 
 const IconFlask=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M9 3h6v7l5 8H4l5-8V3z"/><line x1="8" y1="3" x2="16" y2="3"/></svg>;
 const IconZapLab=({size=24,className=""})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/><circle cx="18" cy="5" r="3"/></svg>;
 
+/* ===== Answer Obfuscation Layer ===== */
+const _SALT='VI2026';
+const _e=(s,n)=>{const p=s+':'+n;let r='';for(let i=0;i<p.length;i++)r+=String.fromCharCode(p.charCodeAt(i)^((i+7)*3&0xFF));return btoa(r);};
+const _d=(token)=>{const decoded=atob(token);let r='';for(let i=0;i<decoded.length;i++)r+=String.fromCharCode(decoded.charCodeAt(i)^((i+7)*3&0xFF));return parseInt(r.split(':')[1],10);};
+const _A0=_e(_SALT,0),_A1=_e(_SALT,1),_A2=_e(_SALT,2),_A3=_e(_SALT,3);
+
 /* ===== DICT ===== */
 const dict={
 zh:{
@@ -69,12 +75,14 @@ submit:"提交答案",retry:"重新測驗",
 score:"得分",correct:"正確",incorrect:"錯誤",explanation:"解析",
 
 analytics_title:"學習歷程分析",analytics_desc:"追蹤您在各模組的學習時間、互動點擊與測驗表現。",analytics_form_title:"基本資料",
-analytics_group:"組別",analytics_dept:"系級",
+analytics_group:"組別",analytics_group_select:"請選擇",analytics_dept:"系級",
 analytics_dept_ph:"例：IBS3",
 analytics_id:"學號",
 analytics_id_ph:"例：112212099",
-analytics_name:"姓名",
-analytics_name_ph:"例：Jimmy Lo",
+analytics_name_en:"英文姓名",
+analytics_name_en_ph:"例：Jimmy Lo",
+analytics_name_zh:"中文姓名",
+analytics_name_zh_ph:"例：王阿吉",
 analytics_export_csv:"匯出 CSV 歷程記錄",
 analytics_fill_required:"請填寫完整資訊以解鎖匯出",
 group_options:["G1","G2","G3","G4","G5","G6","G7","G8","G9","G10","G11","G12","Others"],
@@ -84,6 +92,16 @@ analytics_module:"模組",analytics_time:"停留時間",
 analytics_clicks:"點擊次數",analytics_acc:"答對率",
 analytics_correct_ans_total:"答對 / 已填答 / 總題數",
 analytics_no_data:"尚未測驗",analytics_sec:"秒",analytics_times:"次",
+analytics_wp_title:"弱點分析與複習建議",
+analytics_wp_incorrect:"答錯題目：",
+analytics_wp_goto:"→ 前往複習此模組",
+analytics_wp_allpass:"所有已測驗模組答對率均達 75% 以上，表現優異！",
+analytics_wp_saved:"學習歷程已自動儲存於本機瀏覽器",
+analytics_wp_clear:"🗑 清除歷程",
+analytics_wp_clear_confirm:"確定要清除所有學習歷程資料嗎？此操作無法復原。",
+analytics_wp_tts_intro:"以下是您的弱點分析。",
+analytics_wp_tts_module:"模組：{name}，答對率 {acc}%，建議複習。",
+analytics_wp_tts_allpass:"恭喜！所有已測驗模組答對率均達 75% 以上。",
 
 m0_nav:"0. 課程總覽",
 m0_title:"垂直整合與企業範疇",
@@ -119,14 +137,14 @@ m1_terms:[
   {front:"企業範疇\nScope of the Firm",back:"企業活動的範圍，包含垂直範疇、產品範疇與地理範疇三個維度。"}
 ],
 m1_q:[
-  {q:"根據 Coase 的理論，企業存在的主要原因是什麼？",opts:["最大化股東利潤","降低市場交易成本","增加員工福利","擴大市場份額"],ans:1,exp:"Coase 認為企業存在是因為在某些情況下，組織內部的行政成本低於使用市場的交易成本。"},
-  {q:"以下何者不屬於市場交易成本？",opts:["搜尋成本","談判成本","層級管理成本","執行成本"],ans:2,exp:"層級管理成本是企業內部的行政成本，不是市場交易成本。"},
-  {q:"亞當·斯密所稱的「看不見的手」是指什麼？",opts:["政府管制","市場價格機制","企業管理層級","國際貿易"],ans:1,exp:"「看不見的手」指的是市場價格機制，無需有意識的規劃即可協調經濟活動。"},
-  {q:"20 世紀中期大型企業規模擴張的主要驅動力是什麼？",opts:["網路技術","管理與組織創新","政府補貼","全球化"],ans:1,exp:"系統性管理方法、組織創新（如多事業部結構）和電話等技術降低了內部行政成本。"},
-  {q:"1970 年代後企業傾向縮小規模的原因是什麼？",opts:["法規限制","商業環境更動盪且 ICT 進步","原物料短缺","勞動力不足"],ans:1,exp:"更動盪的環境與數位資訊技術使小型專注企業透過市場協調變得更有效率。"},
-  {q:"企業的三個範疇維度不包括以下哪一項？",opts:["垂直範疇","產品範疇","財務範疇","地理範疇"],ans:2,exp:"企業範疇包含垂直範疇、產品範疇與地理範疇，不包括財務範疇。"},
-  {q:"IBM 大型主機電腦的生產方式最接近以下哪種模式？",opts:["完全垂直整合","完全外包","特許經營","合資企業"],ans:0,exp:"IBM 大型主機使用自家微處理器、作業系統、應用軟體，並自行進行分銷與客服，屬於高度垂直整合。"},
-  {q:"HP 筆記型電腦的生產模式說明了什麼？",opts:["垂直整合的優勢","市場機制可有效協調複雜供應鏈","企業必須自製所有零件","外包必然降低品質"],ans:1,exp:"HP 將製造外包給多家代工廠，零件來自不同供應商，說明市場機制可有效協調複雜的供應鏈。"}
+  {q:"根據 Coase 的理論，企業存在的主要原因是什麼？",opts:["最大化股東利潤","降低市場交易成本","增加員工福利","擴大市場份額"],ans:_A1,exp:"Coase 認為企業存在是因為在某些情況下，組織內部的行政成本低於使用市場的交易成本。"},
+  {q:"以下何者不屬於市場交易成本？",opts:["搜尋成本","談判成本","層級管理成本","執行成本"],ans:_A2,exp:"層級管理成本是企業內部的行政成本，不是市場交易成本。"},
+  {q:"亞當·斯密所稱的「看不見的手」是指什麼？",opts:["政府管制","市場價格機制","企業管理層級","國際貿易"],ans:_A1,exp:"「看不見的手」指的是市場價格機制，無需有意識的規劃即可協調經濟活動。"},
+  {q:"20 世紀中期大型企業規模擴張的主要驅動力是什麼？",opts:["網路技術","管理與組織創新","政府補貼","全球化"],ans:_A1,exp:"系統性管理方法、組織創新（如多事業部結構）和電話等技術降低了內部行政成本。"},
+  {q:"1970 年代後企業傾向縮小規模的原因是什麼？",opts:["法規限制","商業環境更動盪且 ICT 進步","原物料短缺","勞動力不足"],ans:_A1,exp:"更動盪的環境與數位資訊技術使小型專注企業透過市場協調變得更有效率。"},
+  {q:"企業的三個範疇維度不包括以下哪一項？",opts:["垂直範疇","產品範疇","財務範疇","地理範疇"],ans:_A2,exp:"企業範疇包含垂直範疇、產品範疇與地理範疇，不包括財務範疇。"},
+  {q:"IBM 大型主機電腦的生產方式最接近以下哪種模式？",opts:["完全垂直整合","完全外包","特許經營","合資企業"],ans:_A0,exp:"IBM 大型主機使用自家微處理器、作業系統、應用軟體，並自行進行分銷與客服，屬於高度垂直整合。"},
+  {q:"HP 筆記型電腦的生產模式說明了什麼？",opts:["垂直整合的優勢","市場機制可有效協調複雜供應鏈","企業必須自製所有零件","外包必然降低品質"],ans:_A1,exp:"HP 將製造外包給多家代工廠，零件來自不同供應商，說明市場機制可有效協調複雜的供應鏈。"}
 ],
 
 m2_nav:"2. 垂直整合的效益",m2_title:"垂直整合的效益",
@@ -145,14 +163,14 @@ m2_terms:[
   {front:"套牢問題\nHold-Up Problem",back:"在特定資產投資後，一方可威脅撤回交易以壓榨對方，因對方已無法輕易轉向其他交易夥伴。"}
 ],
 m2_q:[
-  {q:"以下何者是垂直整合的技術經濟效益？",opts:["降低談判成本","物理整合相鄰流程節省運輸能源","擴大市場份額","提高員工激勵"],ans:1,exp:"技術經濟指的是將相鄰生產流程整合在同一地點，節省運輸與能源成本。"},
-  {q:"鋼鐵生產與鋼帶生產傾向垂直整合的主要原因是什麼？",opts:["降低人工成本","因特定資產投資產生雙邊壟斷","政府法規要求","消費者偏好"],ans:1,exp:"兩階段工廠需配對建設，形成特定資產投資，導致雙邊壟斷關係。"},
-  {q:"以下哪種情況市場交易最有效率？",opts:["買賣雙方各只有一家","需要高度客製化投資","眾多買賣方且標準化產品","高度不確定的未來環境"],ans:2,exp:"當有眾多買賣方、資訊容易取得且轉換成本低時，市場交易最有效率。"},
-  {q:"在汽車業中，什麼類型的零組件更可能自製？",opts:["通用輪胎","標準火星塞","專用客製零件","通用螺絲"],ans:2,exp:"專用零組件因涉及特定資產投資，更傾向垂直整合自製。"},
-  {q:"Hold-Up Problem 最可能發生在以下哪種情況？",opts:["競爭市場中的標準商品交易","雙方已投入大量特定資產","短期現貨交易","政府管制市場"],ans:1,exp:"當雙方已投入特定資產後，彼此鎖定，一方可威脅撤回交易以壓榨對方。"},
-  {q:"為什麼技術經濟不足以單獨解釋垂直整合？",opts:["技術經濟不存在","共同所有權可由不同公司的設施物理整合替代","技術經濟只適用於服務業","技術經濟只降低固定成本"],ans:1,exp:"物理整合可由相鄰的不同公司完成，但交易成本問題使共同所有權成為必要。"},
-  {q:"半導體業中，什麼因素推動設計與製造的整合？",opts:["晶片價格下降","技術複雜度增加","市場需求降低","政府補貼"],ans:1,exp:"晶片越複雜，設計與製造之間需要更緊密的技術協作，推動垂直整合。"},
-  {q:"珠寶公司通常不擁有金礦的原因是什麼？",opts:["黃金不重要","黃金市場交易成本低","法規禁止","技術門檻太高"],ans:1,exp:"黃金是標準化商品市場，有眾多買賣方，資訊透明，交易成本很低。"}
+  {q:"以下何者是垂直整合的技術經濟效益？",opts:["降低談判成本","物理整合相鄰流程節省運輸能源","擴大市場份額","提高員工激勵"],ans:_A1,exp:"技術經濟指的是將相鄰生產流程整合在同一地點，節省運輸與能源成本。"},
+  {q:"鋼鐵生產與鋼帶生產傾向垂直整合的主要原因是什麼？",opts:["降低人工成本","因特定資產投資產生雙邊壟斷","政府法規要求","消費者偏好"],ans:_A1,exp:"兩階段工廠需配對建設，形成特定資產投資，導致雙邊壟斷關係。"},
+  {q:"以下哪種情況市場交易最有效率？",opts:["買賣雙方各只有一家","需要高度客製化投資","眾多買賣方且標準化產品","高度不確定的未來環境"],ans:_A2,exp:"當有眾多買賣方、資訊容易取得且轉換成本低時，市場交易最有效率。"},
+  {q:"在汽車業中，什麼類型的零組件更可能自製？",opts:["通用輪胎","標準火星塞","專用客製零件","通用螺絲"],ans:_A2,exp:"專用零組件因涉及特定資產投資，更傾向垂直整合自製。"},
+  {q:"Hold-Up Problem 最可能發生在以下哪種情況？",opts:["競爭市場中的標準商品交易","雙方已投入大量特定資產","短期現貨交易","政府管制市場"],ans:_A1,exp:"當雙方已投入特定資產後，彼此鎖定，一方可威脅撤回交易以壓榨對方。"},
+  {q:"為什麼技術經濟不足以單獨解釋垂直整合？",opts:["技術經濟不存在","共同所有權可由不同公司的設施物理整合替代","技術經濟只適用於服務業","技術經濟只降低固定成本"],ans:_A1,exp:"物理整合可由相鄰的不同公司完成，但交易成本問題使共同所有權成為必要。"},
+  {q:"半導體業中，什麼因素推動設計與製造的整合？",opts:["晶片價格下降","技術複雜度增加","市場需求降低","政府補貼"],ans:_A1,exp:"晶片越複雜，設計與製造之間需要更緊密的技術協作，推動垂直整合。"},
+  {q:"珠寶公司通常不擁有金礦的原因是什麼？",opts:["黃金不重要","黃金市場交易成本低","法規禁止","技術門檻太高"],ans:_A1,exp:"黃金是標準化商品市場，有眾多買賣方，資訊透明，交易成本很低。"}
 ],
 
 m3_nav:"3. 垂直整合的成本",m3_title:"垂直整合的成本",
@@ -171,14 +189,14 @@ m3_terms:[
   {front:"風險複合效應\nCompounding Risk",back:"垂直整合使企業各生產階段緊密相連，任一階段出問題可能影響所有其他階段。"}
 ],
 m3_q:[
-  {q:"UPS 不自製貨車的主要原因是什麼？",opts:["技術不足","每年需求量遠低於最低經濟規模","品質無法保證","法規限制"],ans:1,exp:"UPS 每年購買約 20,000 輛貨車，遠低於組裝廠的最低經濟規模。"},
-  {q:"為什麼專業 IT 服務商通常優於企業內部 IT 部門？",opts:["規模更大","從多客戶服務中累積學習","員工薪資更高","使用更新的設備"],ans:1,exp:"IT 服務專家從服務多個客戶中累積學習經驗，這是內部 IT 部門所缺乏的。"},
-  {q:"以下何者是「低動力激勵」的例子？",opts:["外部供應商競標","內部 IT 部門緩慢回應維修請求","新創公司追求客戶","電商平台的價格戰"],ans:1,exp:"內部 IT 部門缺乏市場競爭壓力，回應激勵較弱，是低動力激勵的典型例子。"},
-  {q:"Google 收購 Motorola 的主要競爭風險是什麼？",opts:["技術過時","Android 客戶可能轉向其他作業系統","產品價格上漲","專利訴訟"],ans:1,exp:"其他手機廠商（如 Samsung）可能視 Google 為不可靠供應商而尋找 Android 的替代品。"},
-  {q:"製造業與零售業很少垂直整合的主要原因是什麼？",opts:["法規限制","兩者需要截然不同的組織能力","消費者不接受","技術不相容"],ans:1,exp:"製造與零售需要不同的管理系統、組織能力、人力資源管理方式與領導風格。"},
-  {q:"1998 年 GM 煞車廠罷工如何說明垂直整合的風險？",opts:["增加成本","一個環節的問題導致全部 24 個組裝廠停擺","品質下降","市場份額減少"],ans:1,exp:"這是風險複合效應的典型案例：一個階段的問題波及所有其他階段。"},
-  {q:"McDonald's 不後向整合到養牛和種薯的原因是什麼？",opts:["技術門檻","農業是低利潤產業","品質控制困難","運輸成本"],ans:1,exp:"無論交易成本與協調效益如何，農業本身是低利潤產業，投資吸引力不足。"},
-  {q:"Walmart 選擇自建 IT 而非外包的原因是什麼？",opts:["成本較低","IT 與供應鏈管理緊密整合是核心競爭力","沒有合適供應商","政策要求"],ans:1,exp:"Walmart 的即時資訊系統與供應鏈管理、店內運營緊密整合，IT 是其獨特商業系統的核心。"}
+  {q:"UPS 不自製貨車的主要原因是什麼？",opts:["技術不足","每年需求量遠低於最低經濟規模","品質無法保證","法規限制"],ans:_A1,exp:"UPS 每年購買約 20,000 輛貨車，遠低於組裝廠的最低經濟規模。"},
+  {q:"為什麼專業 IT 服務商通常優於企業內部 IT 部門？",opts:["規模更大","從多客戶服務中累積學習","員工薪資更高","使用更新的設備"],ans:_A1,exp:"IT 服務專家從服務多個客戶中累積學習經驗，這是內部 IT 部門所缺乏的。"},
+  {q:"以下何者是「低動力激勵」的例子？",opts:["外部供應商競標","內部 IT 部門緩慢回應維修請求","新創公司追求客戶","電商平台的價格戰"],ans:_A1,exp:"內部 IT 部門缺乏市場競爭壓力，回應激勵較弱，是低動力激勵的典型例子。"},
+  {q:"Google 收購 Motorola 的主要競爭風險是什麼？",opts:["技術過時","Android 客戶可能轉向其他作業系統","產品價格上漲","專利訴訟"],ans:_A1,exp:"其他手機廠商（如 Samsung）可能視 Google 為不可靠供應商而尋找 Android 的替代品。"},
+  {q:"製造業與零售業很少垂直整合的主要原因是什麼？",opts:["法規限制","兩者需要截然不同的組織能力","消費者不接受","技術不相容"],ans:_A1,exp:"製造與零售需要不同的管理系統、組織能力、人力資源管理方式與領導風格。"},
+  {q:"1998 年 GM 煞車廠罷工如何說明垂直整合的風險？",opts:["增加成本","一個環節的問題導致全部 24 個組裝廠停擺","品質下降","市場份額減少"],ans:_A1,exp:"這是風險複合效應的典型案例：一個階段的問題波及所有其他階段。"},
+  {q:"McDonald's 不後向整合到養牛和種薯的原因是什麼？",opts:["技術門檻","農業是低利潤產業","品質控制困難","運輸成本"],ans:_A1,exp:"無論交易成本與協調效益如何，農業本身是低利潤產業，投資吸引力不足。"},
+  {q:"Walmart 選擇自建 IT 而非外包的原因是什麼？",opts:["成本較低","IT 與供應鏈管理緊密整合是核心競爭力","沒有合適供應商","政策要求"],ans:_A1,exp:"Walmart 的即時資訊系統與供應鏈管理、店內運營緊密整合，IT 是其獨特商業系統的核心。"}
 ],
 
 m4_nav:"4. 自製或外購決策",m4_title:"自製或外購決策",
@@ -192,14 +210,14 @@ m4_terms:[
   {front:"機會主義\nOpportunism",back:"Williamson 定義為「帶有詭計的自利行為」，利用不完全契約或資訊不對稱來謀取私利。"}
 ],
 m4_q:[
-  {q:"以下哪項因素使垂直整合更有利？",opts:["眾多供應商","低特定資產投資","高度資訊不對稱","高市場需求波動"],ans:2,exp:"資訊不對稱越嚴重，機會主義行為越可能，垂直整合的優勢越大。"},
-  {q:"當相鄰活動廠商數量很多時，應傾向？",opts:["垂直整合","市場交易","合資企業","政府管制"],ans:1,exp:"廠商數量越多，市場競爭越充分，市場交易效率越高。"},
-  {q:"不確定性對垂直整合決策的影響是什麼？",opts:["不確定性越高，契約越難完備，整合越有利","不確定性越高越應外包","不確定性與整合決策無關","不確定性只影響價格"],ans:0,exp:"高度不確定性使完全契約難以撰寫，增加市場交易成本，有利於垂直整合。"},
-  {q:"以下哪項因素使垂直整合更不利？",opts:["高特定資產投資","少數廠商","相鄰活動的能力升級需求高","低市場需求波動"],ans:2,exp:"能力發展需求越高，專業化的優勢越大，垂直整合越不利。"},
-  {q:"兩個生產階段的最佳規模差異很大時，應傾向？",opts:["垂直整合","外包","合併","無影響"],ans:1,exp:"規模差異大意味著內部生產效率低落，傾向透過市場交易取得。"},
-  {q:"TCE 理論中，交易頻率的角色是什麼？",opts:["頻率越高越應外包","頻率越高，內部化的固定成本越容易分攤","頻率與整合決策無關","頻率只影響談判成本"],ans:1,exp:"交易頻率越高，設立內部治理結構的成本越容易被分攤，有利於整合。"},
-  {q:"Williamson 定義的機會主義是什麼？",opts:["追求合理利潤","帶有詭計的自利行為","合法的競爭策略","公開的談判立場"],ans:1,exp:"Williamson 將機會主義定義為「帶有詭計的自利行為」（self-interest seeking with guile）。"},
-  {q:"有限理性如何影響垂直整合決策？",opts:["使完全契約成為可能","使長期契約難以涵蓋所有可能情況","對決策無影響","只影響短期契約"],ans:1,exp:"有限理性意味著人無法預見所有未來情況，使完全契約不可能，增加市場交易成本。"}
+  {q:"以下哪項因素使垂直整合更有利？",opts:["眾多供應商","低特定資產投資","高度資訊不對稱","高市場需求波動"],ans:_A2,exp:"資訊不對稱越嚴重，機會主義行為越可能，垂直整合的優勢越大。"},
+  {q:"當相鄰活動廠商數量很多時，應傾向？",opts:["垂直整合","市場交易","合資企業","政府管制"],ans:_A1,exp:"廠商數量越多，市場競爭越充分，市場交易效率越高。"},
+  {q:"不確定性對垂直整合決策的影響是什麼？",opts:["不確定性越高，契約越難完備，整合越有利","不確定性越高越應外包","不確定性與整合決策無關","不確定性只影響價格"],ans:_A0,exp:"高度不確定性使完全契約難以撰寫，增加市場交易成本，有利於垂直整合。"},
+  {q:"以下哪項因素使垂直整合更不利？",opts:["高特定資產投資","少數廠商","相鄰活動的能力升級需求高","低市場需求波動"],ans:_A2,exp:"能力發展需求越高，專業化的優勢越大，垂直整合越不利。"},
+  {q:"兩個生產階段的最佳規模差異很大時，應傾向？",opts:["垂直整合","外包","合併","無影響"],ans:_A1,exp:"規模差異大意味著內部生產效率低落，傾向透過市場交易取得。"},
+  {q:"TCE 理論中，交易頻率的角色是什麼？",opts:["頻率越高越應外包","頻率越高，內部化的固定成本越容易分攤","頻率與整合決策無關","頻率只影響談判成本"],ans:_A1,exp:"交易頻率越高，設立內部治理結構的成本越容易被分攤，有利於整合。"},
+  {q:"Williamson 定義的機會主義是什麼？",opts:["追求合理利潤","帶有詭計的自利行為","合法的競爭策略","公開的談判立場"],ans:_A1,exp:"Williamson 將機會主義定義為「帶有詭計的自利行為」（self-interest seeking with guile）。"},
+  {q:"有限理性如何影響垂直整合決策？",opts:["使完全契約成為可能","使長期契約難以涵蓋所有可能情況","對決策無影響","只影響短期契約"],ans:_A1,exp:"有限理性意味著人無法預見所有未來情況，使完全契約不可能，增加市場交易成本。"}
 ],
 
 m5_nav:"5. 垂直關係設計與趨勢",m5_title:"垂直關係設計與趨勢",
@@ -218,14 +236,14 @@ m5_terms:[
   {front:"錐型整合\nTaper Integration",back:"企業同時使用內部供應與外部供應（部分整合），既維持內部能力又利用市場效率。"}
 ],
 m5_q:[
-  {q:"特許經營的主要優勢是什麼？",opts:["完全控制品質","結合規模優勢與創業激勵","消除所有風險","降低品牌價值"],ans:1,exp:"特許經營結合大企業的品牌與系統優勢，以及加盟者的創業精神與在地知識。"},
-  {q:"日本汽車廠與供應商的關係主要基於什麼？",opts:["短期價格競標","長期信任與協作","政府強制","股權投資"],ans:1,exp:"日本汽車廠與供應商建立基於信任與相互理解的長期協作夥伴關係。"},
-  {q:"Apple 生態系統屬於哪種垂直關係？",opts:["完全垂直整合","完全市場交易","協作型垂直夥伴關係","特許經營"],ans:2,exp:"Apple 主導產品開發並緊密控制智慧財產權，但整合了廣泛供應商網絡的能力與創新。"},
-  {q:"「虛擬企業」為何仍是抽象概念？",opts:["法規不允許","缺乏技術支持","需要架構性能力來協調網絡","市場太小"],ans:2,exp:"系統整合者必須維持架構性能力才能有效管理供應商網絡，不能完全依賴外部。"},
-  {q:"Zara 高度垂直整合的策略優勢是什麼？",opts:["降低成本","超快速的設計到門市週期","擴大產品範圍","減少員工"],ans:1,exp:"Zara 的緊密垂直整合實現了從設計到門市的超快速週期。"},
-  {q:"在特許經營中，風險主要由誰承擔？",opts:["授權方","加盟者","消費者","政府"],ans:1,exp:"在特許經營中，加盟者的資本承擔風險，並向授權方支付基於營收的固定權利金。"},
-  {q:"Boeing 787 Dreamliner 的開發困難說明了什麼？",opts:["垂直整合的優勢","技術變革快速時管理供應商網絡的高度複雜性","外包總是有效的","內部製造必然優越"],ans:1,exp:"Boeing 的困難顯示在快速技術變革時期，管理供應商網絡極為複雜。"},
-  {q:"以下哪種情況最適合長期契約？",opts:["標準化商品的現貨交易","需要特定投資但完全預測未來很困難","完全不確定的環境","無特定投資需求"],ans:1,exp:"長期契約適合需要一定特定投資、但情況相對可預測的交易，提供安全性並減少機會主義。"}
+  {q:"特許經營的主要優勢是什麼？",opts:["完全控制品質","結合規模優勢與創業激勵","消除所有風險","降低品牌價值"],ans:_A1,exp:"特許經營結合大企業的品牌與系統優勢，以及加盟者的創業精神與在地知識。"},
+  {q:"日本汽車廠與供應商的關係主要基於什麼？",opts:["短期價格競標","長期信任與協作","政府強制","股權投資"],ans:_A1,exp:"日本汽車廠與供應商建立基於信任與相互理解的長期協作夥伴關係。"},
+  {q:"Apple 生態系統屬於哪種垂直關係？",opts:["完全垂直整合","完全市場交易","協作型垂直夥伴關係","特許經營"],ans:_A2,exp:"Apple 主導產品開發並緊密控制智慧財產權，但整合了廣泛供應商網絡的能力與創新。"},
+  {q:"「虛擬企業」為何仍是抽象概念？",opts:["法規不允許","缺乏技術支持","需要架構性能力來協調網絡","市場太小"],ans:_A2,exp:"系統整合者必須維持架構性能力才能有效管理供應商網絡，不能完全依賴外部。"},
+  {q:"Zara 高度垂直整合的策略優勢是什麼？",opts:["降低成本","超快速的設計到門市週期","擴大產品範圍","減少員工"],ans:_A1,exp:"Zara 的緊密垂直整合實現了從設計到門市的超快速週期。"},
+  {q:"在特許經營中，風險主要由誰承擔？",opts:["授權方","加盟者","消費者","政府"],ans:_A1,exp:"在特許經營中，加盟者的資本承擔風險，並向授權方支付基於營收的固定權利金。"},
+  {q:"Boeing 787 Dreamliner 的開發困難說明了什麼？",opts:["垂直整合的優勢","技術變革快速時管理供應商網絡的高度複雜性","外包總是有效的","內部製造必然優越"],ans:_A1,exp:"Boeing 的困難顯示在快速技術變革時期，管理供應商網絡極為複雜。"},
+  {q:"以下哪種情況最適合長期契約？",opts:["標準化商品的現貨交易","需要特定投資但完全預測未來很困難","完全不確定的環境","無特定投資需求"],ans:_A1,exp:"長期契約適合需要一定特定投資、但情況相對可預測的交易，提供安全性並減少機會主義。"}
 ],
 
 m6_nav:"6. 外部資源",m6_title:"延伸學習資源",m6_desc:"精選與垂直整合和企業策略相關的學術與實務資源。",
@@ -237,7 +255,7 @@ mlab_labs:[
   {title:"垂直關係類型比較",desc:"視覺化各種垂直關係的特徵"}
 ],
 
-date:"Version 2026.03.27",
+date:"Version 2026.03.29",
 copyright:"For Educational Use Only",
 architect_label:"Architect:",
 architect_name:"Prof. Shihmin Lo",
@@ -255,12 +273,14 @@ submit:"Submit",retry:"Retry",
 score:"Score",correct:"Correct",incorrect:"Incorrect",explanation:"Explanation",
 
 analytics_title:"Learning Analytics",analytics_desc:"Track your study time, interactions, and quiz performance across modules.",analytics_form_title:"Student Information",
-analytics_group:"Group",analytics_dept:"Department",
+analytics_group:"Group",analytics_group_select:"Select",analytics_dept:"Department",
 analytics_dept_ph:"e.g., IBS3",
 analytics_id:"Student ID",
 analytics_id_ph:"e.g., 112212099",
-analytics_name:"Name",
-analytics_name_ph:"e.g., Jimmy Lo",
+analytics_name_en:"English Name",
+analytics_name_en_ph:"e.g., Jimmy Lo",
+analytics_name_zh:"Chinese Name",
+analytics_name_zh_ph:"e.g., 王阿吉",
 analytics_export_csv:"Export CSV Record",
 analytics_fill_required:"Please fill in all fields to unlock export",
 group_options:["G1","G2","G3","G4","G5","G6","G7","G8","G9","G10","G11","G12","Others"],
@@ -270,6 +290,16 @@ analytics_module:"Module",analytics_time:"Time Spent",
 analytics_clicks:"Clicks",analytics_acc:"Accuracy",
 analytics_correct_ans_total:"Correct / Answered / Total",
 analytics_no_data:"Not yet tested",analytics_sec:"sec",analytics_times:"times",
+analytics_wp_title:"Weak-Point Analysis & Review Recommendations",
+analytics_wp_incorrect:"Incorrect questions:",
+analytics_wp_goto:"→ Go review this module",
+analytics_wp_allpass:"All tested modules scored above 75%. Excellent work!",
+analytics_wp_saved:"Learning data auto-saved to your browser",
+analytics_wp_clear:"🗑 Clear Data",
+analytics_wp_clear_confirm:"Clear all analytics data? This cannot be undone.",
+analytics_wp_tts_intro:"Here is your weak-point analysis.",
+analytics_wp_tts_module:"Module: {name}, accuracy {acc}%, review recommended.",
+analytics_wp_tts_allpass:"Congratulations! All tested modules scored above 75%.",
 
 m0_nav:"0. Overview",
 m0_title:"Vertical Integration & Scope of the Firm",
@@ -305,14 +335,14 @@ m1_terms:[
   {front:"Scope of the Firm",back:"The range of a firm's activities, encompassing three dimensions: vertical scope, product scope, and geographical scope."}
 ],
 m1_q:[
-  {q:"According to Coase, what is the main reason firms exist?",opts:["Maximize shareholder profit","Reduce market transaction costs","Increase employee welfare","Expand market share"],ans:1,exp:"Coase argued that firms exist because in some cases, internal administrative costs are lower than market transaction costs."},
-  {q:"Which is NOT a market transaction cost?",opts:["Search costs","Negotiation costs","Hierarchical management costs","Enforcement costs"],ans:2,exp:"Hierarchical management costs are internal administrative costs of the firm, not market transaction costs."},
-  {q:"What does Adam Smith's 'invisible hand' refer to?",opts:["Government regulation","Market price mechanism","Corporate management hierarchy","International trade"],ans:1,exp:"The 'invisible hand' refers to the market price mechanism that coordinates economic activity without conscious planning."},
-  {q:"What drove large firm expansion in the mid-20th century?",opts:["Internet technology","Management and organizational innovation","Government subsidies","Globalization"],ans:1,exp:"Systematic management approaches, organizational innovations (like M-form), and technologies like telephone reduced internal administrative costs."},
-  {q:"Why did firms tend to downsize after the 1970s?",opts:["Regulatory restrictions","More turbulent environment and ICT advances","Raw material shortages","Labor shortages"],ans:1,exp:"A more turbulent environment and digital ICT made smaller focused firms coordinated through markets more efficient."},
-  {q:"Which is NOT one of the three dimensions of firm scope?",opts:["Vertical scope","Product scope","Financial scope","Geographical scope"],ans:2,exp:"Firm scope includes vertical, product, and geographical scope — not financial scope."},
-  {q:"IBM mainframes best exemplify which model?",opts:["Full vertical integration","Full outsourcing","Franchising","Joint venture"],ans:0,exp:"IBM mainframes use IBM processors, OS, software, and IBM handles distribution and support — highly vertically integrated."},
-  {q:"What does HP's laptop production model demonstrate?",opts:["Advantages of vertical integration","Market mechanism can coordinate complex supply chains","Firms must make all components","Outsourcing inevitably reduces quality"],ans:1,exp:"HP outsources manufacturing to multiple contractors with components from various suppliers, showing market coordination works for complex supply chains."}
+  {q:"According to Coase, what is the main reason firms exist?",opts:["Maximize shareholder profit","Reduce market transaction costs","Increase employee welfare","Expand market share"],ans:_A1,exp:"Coase argued that firms exist because in some cases, internal administrative costs are lower than market transaction costs."},
+  {q:"Which is NOT a market transaction cost?",opts:["Search costs","Negotiation costs","Hierarchical management costs","Enforcement costs"],ans:_A2,exp:"Hierarchical management costs are internal administrative costs of the firm, not market transaction costs."},
+  {q:"What does Adam Smith's 'invisible hand' refer to?",opts:["Government regulation","Market price mechanism","Corporate management hierarchy","International trade"],ans:_A1,exp:"The 'invisible hand' refers to the market price mechanism that coordinates economic activity without conscious planning."},
+  {q:"What drove large firm expansion in the mid-20th century?",opts:["Internet technology","Management and organizational innovation","Government subsidies","Globalization"],ans:_A1,exp:"Systematic management approaches, organizational innovations (like M-form), and technologies like telephone reduced internal administrative costs."},
+  {q:"Why did firms tend to downsize after the 1970s?",opts:["Regulatory restrictions","More turbulent environment and ICT advances","Raw material shortages","Labor shortages"],ans:_A1,exp:"A more turbulent environment and digital ICT made smaller focused firms coordinated through markets more efficient."},
+  {q:"Which is NOT one of the three dimensions of firm scope?",opts:["Vertical scope","Product scope","Financial scope","Geographical scope"],ans:_A2,exp:"Firm scope includes vertical, product, and geographical scope — not financial scope."},
+  {q:"IBM mainframes best exemplify which model?",opts:["Full vertical integration","Full outsourcing","Franchising","Joint venture"],ans:_A0,exp:"IBM mainframes use IBM processors, OS, software, and IBM handles distribution and support — highly vertically integrated."},
+  {q:"What does HP's laptop production model demonstrate?",opts:["Advantages of vertical integration","Market mechanism can coordinate complex supply chains","Firms must make all components","Outsourcing inevitably reduces quality"],ans:_A1,exp:"HP outsources manufacturing to multiple contractors with components from various suppliers, showing market coordination works for complex supply chains."}
 ],
 
 m2_nav:"2. Benefits of VI",m2_title:"Benefits of Vertical Integration",
@@ -331,14 +361,14 @@ m2_terms:[
   {front:"Hold-Up Problem",back:"After making specific investments, one party can threaten to withdraw from the transaction to extract concessions, as the other party cannot easily switch partners."}
 ],
 m2_q:[
-  {q:"Which is a technical economy benefit of vertical integration?",opts:["Reduced negotiation costs","Physical integration of adjacent processes saves transport/energy","Expanded market share","Improved employee incentives"],ans:1,exp:"Technical economies refer to cost savings from physically integrating adjacent production processes at a single location."},
-  {q:"Why do steel and steel strip production tend to be vertically integrated?",opts:["Lower labor costs","Transaction-specific investments create bilateral monopoly","Government regulations","Consumer preferences"],ans:1,exp:"The two stages require matched facilities, creating transaction-specific investments that lead to bilateral monopoly."},
-  {q:"When are market transactions most efficient?",opts:["Only one buyer and seller","Highly customized investments needed","Many buyers/sellers with standardized products","Highly uncertain future"],ans:2,exp:"With many buyers and sellers, readily available information, and low switching costs, market transactions are most efficient."},
-  {q:"In the auto industry, what type of components are more likely made in-house?",opts:["Standard tires","Standard spark plugs","Specialized custom parts","Standard screws"],ans:2,exp:"Specialized components involve transaction-specific investments and are more likely to be vertically integrated."},
-  {q:"When is the hold-up problem most likely?",opts:["Standard commodity trading in competitive markets","Both parties have invested heavily in specific assets","Short-term spot transactions","Government-regulated markets"],ans:1,exp:"After both parties invest in specific assets, they're locked together, enabling one party to threaten withdrawal for concessions."},
-  {q:"Why don't technical economies alone explain vertical integration?",opts:["They don't exist","Physical integration can be done by separate co-located firms","They only apply to services","They only reduce fixed costs"],ans:1,exp:"Physical integration can be achieved by adjacent independent firms, but transaction cost problems make common ownership necessary."},
-  {q:"What drives design-fabrication integration in semiconductors?",opts:["Falling chip prices","Increasing technical complexity","Declining market demand","Government subsidies"],ans:1,exp:"More complex chips require closer technical collaboration between design and fabrication, driving integration."},
-  {q:"Why don't jewelry companies typically own gold mines?",opts:["Gold isn't important","Gold market transaction costs are low","Regulations prohibit it","Technical barriers too high"],ans:1,exp:"Gold is a standardized commodity with many buyers and sellers, transparent information, and very low transaction costs."}
+  {q:"Which is a technical economy benefit of vertical integration?",opts:["Reduced negotiation costs","Physical integration of adjacent processes saves transport/energy","Expanded market share","Improved employee incentives"],ans:_A1,exp:"Technical economies refer to cost savings from physically integrating adjacent production processes at a single location."},
+  {q:"Why do steel and steel strip production tend to be vertically integrated?",opts:["Lower labor costs","Transaction-specific investments create bilateral monopoly","Government regulations","Consumer preferences"],ans:_A1,exp:"The two stages require matched facilities, creating transaction-specific investments that lead to bilateral monopoly."},
+  {q:"When are market transactions most efficient?",opts:["Only one buyer and seller","Highly customized investments needed","Many buyers/sellers with standardized products","Highly uncertain future"],ans:_A2,exp:"With many buyers and sellers, readily available information, and low switching costs, market transactions are most efficient."},
+  {q:"In the auto industry, what type of components are more likely made in-house?",opts:["Standard tires","Standard spark plugs","Specialized custom parts","Standard screws"],ans:_A2,exp:"Specialized components involve transaction-specific investments and are more likely to be vertically integrated."},
+  {q:"When is the hold-up problem most likely?",opts:["Standard commodity trading in competitive markets","Both parties have invested heavily in specific assets","Short-term spot transactions","Government-regulated markets"],ans:_A1,exp:"After both parties invest in specific assets, they're locked together, enabling one party to threaten withdrawal for concessions."},
+  {q:"Why don't technical economies alone explain vertical integration?",opts:["They don't exist","Physical integration can be done by separate co-located firms","They only apply to services","They only reduce fixed costs"],ans:_A1,exp:"Physical integration can be achieved by adjacent independent firms, but transaction cost problems make common ownership necessary."},
+  {q:"What drives design-fabrication integration in semiconductors?",opts:["Falling chip prices","Increasing technical complexity","Declining market demand","Government subsidies"],ans:_A1,exp:"More complex chips require closer technical collaboration between design and fabrication, driving integration."},
+  {q:"Why don't jewelry companies typically own gold mines?",opts:["Gold isn't important","Gold market transaction costs are low","Regulations prohibit it","Technical barriers too high"],ans:_A1,exp:"Gold is a standardized commodity with many buyers and sellers, transparent information, and very low transaction costs."}
 ],
 
 m3_nav:"3. Costs of VI",m3_title:"Costs of Vertical Integration",
@@ -357,14 +387,14 @@ m3_terms:[
   {front:"Compounding Risk",back:"Vertical integration links all production stages tightly, so problems at any one stage can threaten production and profitability at all other stages."}
 ],
 m3_q:[
-  {q:"Why doesn't UPS manufacture its own vans?",opts:["Insufficient technology","Annual demand far below minimum efficient scale","Cannot guarantee quality","Regulatory restrictions"],ans:1,exp:"UPS buys ~20,000 vans yearly, far below the minimum efficient scale of an assembly plant."},
-  {q:"Why are specialist IT firms usually better than in-house IT?",opts:["Larger scale","They accumulate learning from serving multiple clients","Higher employee salaries","Newer equipment"],ans:1,exp:"IT specialists gain learning from serving multiple clients — something in-house IT departments lack."},
-  {q:"Which exemplifies 'low-powered incentives'?",opts:["External supplier competitive bidding","Internal IT department responding slowly to repair requests","Startup pursuing customers","E-commerce price wars"],ans:1,exp:"Internal IT departments lack market competitive pressure, resulting in weak response incentives — a classic low-powered incentive example."},
-  {q:"What was the main competitive risk of Google acquiring Motorola?",opts:["Technology obsolescence","Android customers might switch to other OS","Higher product prices","Patent litigation"],ans:1,exp:"Other handset makers (especially Samsung) might view Google as an unreliable Android supplier and seek alternatives."},
-  {q:"Why is integration between manufacturing and retail rare?",opts:["Regulatory restrictions","They require fundamentally different organizational capabilities","Consumers won't accept it","Technology incompatibility"],ans:1,exp:"Manufacturing and retail need different management systems, capabilities, HR approaches, and leadership styles."},
-  {q:"How does the 1998 GM brake plant strike illustrate VI risk?",opts:["Increased costs","One stage's problem shut down all 24 assembly plants","Quality declined","Lost market share"],ans:1,exp:"This is a classic case of compounding risk: problems at one stage affecting all other stages."},
-  {q:"Why doesn't McDonald's backward integrate into cattle/potato farming?",opts:["Technical barriers","Agriculture is a low-margin industry","Quality control difficulties","Transportation costs"],ans:1,exp:"Regardless of transaction costs or coordination benefits, agriculture is inherently low-margin and unattractive for investment."},
-  {q:"Why does Walmart keep IT in-house rather than outsource?",opts:["Lower cost","IT tightly integrated with supply chain is a core competency","No suitable suppliers","Policy requirement"],ans:1,exp:"Walmart's real-time information systems are tightly integrated with supply chain management and store operations — IT is central to its unique business system."}
+  {q:"Why doesn't UPS manufacture its own vans?",opts:["Insufficient technology","Annual demand far below minimum efficient scale","Cannot guarantee quality","Regulatory restrictions"],ans:_A1,exp:"UPS buys ~20,000 vans yearly, far below the minimum efficient scale of an assembly plant."},
+  {q:"Why are specialist IT firms usually better than in-house IT?",opts:["Larger scale","They accumulate learning from serving multiple clients","Higher employee salaries","Newer equipment"],ans:_A1,exp:"IT specialists gain learning from serving multiple clients — something in-house IT departments lack."},
+  {q:"Which exemplifies 'low-powered incentives'?",opts:["External supplier competitive bidding","Internal IT department responding slowly to repair requests","Startup pursuing customers","E-commerce price wars"],ans:_A1,exp:"Internal IT departments lack market competitive pressure, resulting in weak response incentives — a classic low-powered incentive example."},
+  {q:"What was the main competitive risk of Google acquiring Motorola?",opts:["Technology obsolescence","Android customers might switch to other OS","Higher product prices","Patent litigation"],ans:_A1,exp:"Other handset makers (especially Samsung) might view Google as an unreliable Android supplier and seek alternatives."},
+  {q:"Why is integration between manufacturing and retail rare?",opts:["Regulatory restrictions","They require fundamentally different organizational capabilities","Consumers won't accept it","Technology incompatibility"],ans:_A1,exp:"Manufacturing and retail need different management systems, capabilities, HR approaches, and leadership styles."},
+  {q:"How does the 1998 GM brake plant strike illustrate VI risk?",opts:["Increased costs","One stage's problem shut down all 24 assembly plants","Quality declined","Lost market share"],ans:_A1,exp:"This is a classic case of compounding risk: problems at one stage affecting all other stages."},
+  {q:"Why doesn't McDonald's backward integrate into cattle/potato farming?",opts:["Technical barriers","Agriculture is a low-margin industry","Quality control difficulties","Transportation costs"],ans:_A1,exp:"Regardless of transaction costs or coordination benefits, agriculture is inherently low-margin and unattractive for investment."},
+  {q:"Why does Walmart keep IT in-house rather than outsource?",opts:["Lower cost","IT tightly integrated with supply chain is a core competency","No suitable suppliers","Policy requirement"],ans:_A1,exp:"Walmart's real-time information systems are tightly integrated with supply chain management and store operations — IT is central to its unique business system."}
 ],
 
 m4_nav:"4. Make or Buy Decisions",m4_title:"Make or Buy Decisions",
@@ -378,14 +408,14 @@ m4_terms:[
   {front:"Opportunism",back:"Williamson's concept of 'self-interest seeking with guile' — exploiting incomplete contracts or information asymmetry for private gain."}
 ],
 m4_q:[
-  {q:"Which factor makes vertical integration more advantageous?",opts:["Many suppliers","Low specific investments","High information asymmetry","High market demand volatility"],ans:2,exp:"Greater information asymmetry increases the likelihood of opportunistic behavior, making VI more advantageous."},
-  {q:"When many firms exist in the adjacent activity, the tendency is toward?",opts:["Vertical integration","Market transactions","Joint ventures","Government regulation"],ans:1,exp:"More firms mean more competition, making market transactions more efficient."},
-  {q:"How does uncertainty affect the VI decision?",opts:["Higher uncertainty makes contracts harder to complete, favoring VI","Higher uncertainty favors outsourcing","Uncertainty is irrelevant to VI decisions","Uncertainty only affects pricing"],ans:0,exp:"High uncertainty makes complete contracts difficult, increasing market transaction costs and favoring VI."},
-  {q:"Which factor makes vertical integration less advantageous?",opts:["High specific investments","Few firms","High capability upgrading needs in adjacent activity","Low market demand volatility"],ans:2,exp:"When capability development is crucial, specialization advantages are greater, making VI less favorable."},
-  {q:"When optimal scales differ greatly between stages, the tendency is?",opts:["Vertical integration","Outsourcing","Merger","No impact"],ans:1,exp:"Large scale differences mean internal production is inefficient, favoring market transactions."},
-  {q:"What is the role of transaction frequency in TCE?",opts:["Higher frequency favors outsourcing","Higher frequency helps amortize internalization fixed costs","Frequency is irrelevant","Frequency only affects negotiation costs"],ans:1,exp:"Higher frequency makes it easier to amortize the fixed costs of internal governance structures, favoring integration."},
-  {q:"What is Williamson's definition of opportunism?",opts:["Pursuing reasonable profits","Self-interest seeking with guile","A legitimate competitive strategy","An open negotiating position"],ans:1,exp:"Williamson defined opportunism as 'self-interest seeking with guile.'"},
-  {q:"How does bounded rationality affect the VI decision?",opts:["Makes complete contracts possible","Makes long-term contracts unable to cover all contingencies","Has no effect","Only affects short-term contracts"],ans:1,exp:"Bounded rationality means people cannot foresee all future contingencies, making complete contracts impossible and increasing market transaction costs."}
+  {q:"Which factor makes vertical integration more advantageous?",opts:["Many suppliers","Low specific investments","High information asymmetry","High market demand volatility"],ans:_A2,exp:"Greater information asymmetry increases the likelihood of opportunistic behavior, making VI more advantageous."},
+  {q:"When many firms exist in the adjacent activity, the tendency is toward?",opts:["Vertical integration","Market transactions","Joint ventures","Government regulation"],ans:_A1,exp:"More firms mean more competition, making market transactions more efficient."},
+  {q:"How does uncertainty affect the VI decision?",opts:["Higher uncertainty makes contracts harder to complete, favoring VI","Higher uncertainty favors outsourcing","Uncertainty is irrelevant to VI decisions","Uncertainty only affects pricing"],ans:_A0,exp:"High uncertainty makes complete contracts difficult, increasing market transaction costs and favoring VI."},
+  {q:"Which factor makes vertical integration less advantageous?",opts:["High specific investments","Few firms","High capability upgrading needs in adjacent activity","Low market demand volatility"],ans:_A2,exp:"When capability development is crucial, specialization advantages are greater, making VI less favorable."},
+  {q:"When optimal scales differ greatly between stages, the tendency is?",opts:["Vertical integration","Outsourcing","Merger","No impact"],ans:_A1,exp:"Large scale differences mean internal production is inefficient, favoring market transactions."},
+  {q:"What is the role of transaction frequency in TCE?",opts:["Higher frequency favors outsourcing","Higher frequency helps amortize internalization fixed costs","Frequency is irrelevant","Frequency only affects negotiation costs"],ans:_A1,exp:"Higher frequency makes it easier to amortize the fixed costs of internal governance structures, favoring integration."},
+  {q:"What is Williamson's definition of opportunism?",opts:["Pursuing reasonable profits","Self-interest seeking with guile","A legitimate competitive strategy","An open negotiating position"],ans:_A1,exp:"Williamson defined opportunism as 'self-interest seeking with guile.'"},
+  {q:"How does bounded rationality affect the VI decision?",opts:["Makes complete contracts possible","Makes long-term contracts unable to cover all contingencies","Has no effect","Only affects short-term contracts"],ans:_A1,exp:"Bounded rationality means people cannot foresee all future contingencies, making complete contracts impossible and increasing market transaction costs."}
 ],
 
 m5_nav:"5. Vertical Relationships & Trends",m5_title:"Vertical Relationships & Trends",
@@ -404,14 +434,14 @@ m5_terms:[
   {front:"Taper Integration",back:"A firm using both internal and external supply (partial integration), maintaining internal capabilities while leveraging market efficiency."}
 ],
 m5_q:[
-  {q:"What is the main advantage of franchising?",opts:["Complete quality control","Combines scale advantages with entrepreneurial incentives","Eliminates all risk","Reduces brand value"],ans:1,exp:"Franchising combines large firm brand/system advantages with franchisee entrepreneurship and local knowledge."},
-  {q:"Japanese automaker-supplier relationships are primarily based on?",opts:["Short-term competitive bidding","Long-term trust and collaboration","Government mandate","Equity investment"],ans:1,exp:"Japanese automakers build long-term collaborative partnerships based on trust and mutual understanding."},
-  {q:"Apple's ecosystem represents which type of vertical relationship?",opts:["Full vertical integration","Pure market transactions","Collaborative vertical partnership","Franchising"],ans:2,exp:"Apple leads product development and controls IP tightly but integrates the capabilities and innovations of a broad supplier network."},
-  {q:"Why does the 'virtual corporation' remain an abstract concept?",opts:["Regulations don't allow it","Lack of technology","Need architectural capabilities to coordinate networks","Markets are too small"],ans:2,exp:"Systems integrators must maintain architectural capabilities to effectively manage supplier networks — they can't rely entirely on externals."},
-  {q:"What is Zara's strategic advantage from high vertical integration?",opts:["Lower costs","Ultra-fast design-to-store cycle","Wider product range","Fewer employees"],ans:1,exp:"Zara's tight vertical integration enables an ultra-fast design-to-distribution cycle."},
-  {q:"In franchising, who primarily bears the risk?",opts:["Franchisor","Franchisee","Consumer","Government"],ans:1,exp:"In franchising, the franchisee's capital is at risk, and they pay the franchisor a fixed royalty based on revenue."},
-  {q:"What do Boeing 787 Dreamliner development difficulties illustrate?",opts:["Advantages of vertical integration","High complexity of managing supplier networks during rapid technological change","Outsourcing always works","Internal manufacturing is always superior"],ans:1,exp:"Boeing's difficulties show that managing supplier networks is highly complex during rapid technological change."},
-  {q:"Which situation best suits a long-term contract?",opts:["Spot trading of standardized commodities","Specific investments needed but future not fully predictable","Completely uncertain environment","No specific investment needed"],ans:1,exp:"Long-term contracts suit transactions needing some specific investment under relatively predictable conditions, providing security while reducing opportunism."}
+  {q:"What is the main advantage of franchising?",opts:["Complete quality control","Combines scale advantages with entrepreneurial incentives","Eliminates all risk","Reduces brand value"],ans:_A1,exp:"Franchising combines large firm brand/system advantages with franchisee entrepreneurship and local knowledge."},
+  {q:"Japanese automaker-supplier relationships are primarily based on?",opts:["Short-term competitive bidding","Long-term trust and collaboration","Government mandate","Equity investment"],ans:_A1,exp:"Japanese automakers build long-term collaborative partnerships based on trust and mutual understanding."},
+  {q:"Apple's ecosystem represents which type of vertical relationship?",opts:["Full vertical integration","Pure market transactions","Collaborative vertical partnership","Franchising"],ans:_A2,exp:"Apple leads product development and controls IP tightly but integrates the capabilities and innovations of a broad supplier network."},
+  {q:"Why does the 'virtual corporation' remain an abstract concept?",opts:["Regulations don't allow it","Lack of technology","Need architectural capabilities to coordinate networks","Markets are too small"],ans:_A2,exp:"Systems integrators must maintain architectural capabilities to effectively manage supplier networks — they can't rely entirely on externals."},
+  {q:"What is Zara's strategic advantage from high vertical integration?",opts:["Lower costs","Ultra-fast design-to-store cycle","Wider product range","Fewer employees"],ans:_A1,exp:"Zara's tight vertical integration enables an ultra-fast design-to-distribution cycle."},
+  {q:"In franchising, who primarily bears the risk?",opts:["Franchisor","Franchisee","Consumer","Government"],ans:_A1,exp:"In franchising, the franchisee's capital is at risk, and they pay the franchisor a fixed royalty based on revenue."},
+  {q:"What do Boeing 787 Dreamliner development difficulties illustrate?",opts:["Advantages of vertical integration","High complexity of managing supplier networks during rapid technological change","Outsourcing always works","Internal manufacturing is always superior"],ans:_A1,exp:"Boeing's difficulties show that managing supplier networks is highly complex during rapid technological change."},
+  {q:"Which situation best suits a long-term contract?",opts:["Spot trading of standardized commodities","Specific investments needed but future not fully predictable","Completely uncertain environment","No specific investment needed"],ans:_A1,exp:"Long-term contracts suit transactions needing some specific investment under relatively predictable conditions, providing security while reducing opportunism."}
 ],
 
 m6_nav:"6. Resources",m6_title:"Extended Learning Resources",m6_desc:"Curated academic and practical resources on vertical integration and corporate strategy.",
@@ -423,7 +453,7 @@ mlab_labs:[
   {title:"Vertical Relationship Types Comparison",desc:"Visualize characteristics of different vertical relationships"}
 ],
 
-date:"Version 2026.03.27",
+date:"Version 2026.03.29",
 copyright:"For Educational Use Only",
 architect_label:"Architect:",
 architect_name:"Prof. Shihmin Lo",
@@ -452,7 +482,7 @@ const FlipCard=({front,back,t})=>{
   );
 };
 
-const ModuleQuiz=({questions,t,moduleId,onQuizSubmit})=>{
+const ModuleQuiz=({questions,t,moduleId,onQuizSubmit,moduleName})=>{
   const[selected,setSelected]=useState({});
   const[submitted,setSubmitted]=useState(false);
   const[quizIndices]=useState(()=>[...Array(questions.length).keys()].sort(()=>Math.random()-.5).slice(0,4));
@@ -467,7 +497,7 @@ const ModuleQuiz=({questions,t,moduleId,onQuizSubmit})=>{
               <button key={oIdx} onClick={()=>!submitted&&setSelected(s=>({...s,[i]:oIdx}))}
                 className={`w-full text-left px-4 py-3 rounded-lg border transition-all text-sm
                   ${submitted
-                    ?oIdx===q.ans?'bg-green-100 border-green-500 dark:bg-green-900/30 dark:border-green-500'
+                    ?oIdx===_d(q.ans)?'bg-green-100 border-green-500 dark:bg-green-900/30 dark:border-green-500'
                       :selected[i]===oIdx?'bg-red-100 border-red-400 dark:bg-red-900/30 dark:border-red-400':'border-slate-200 dark:border-slate-700'
                     :selected[i]===oIdx?'border-[#004030] dark:border-[#D8C3A5] bg-[#004030]/5 dark:bg-[#D8C3A5]/5':'border-slate-200 dark:border-slate-700 hover:border-slate-400'
                   }`}>{opt}</button>
@@ -477,11 +507,11 @@ const ModuleQuiz=({questions,t,moduleId,onQuizSubmit})=>{
         </div>
       );})}
       {!submitted
-        ?<button onClick={()=>{setSubmitted(true);const c=quizIndices.filter((qIdx,i)=>selected[i]===questions[qIdx].ans).length;onQuizSubmit(moduleId,c,quizIndices.length);}}
+        ?<button onClick={()=>{setSubmitted(true);const c=quizIndices.filter((qIdx,i)=>selected[i]===_d(questions[qIdx].ans)).length;const wrongQs=quizIndices.filter((qIdx,i)=>selected[i]!==_d(questions[qIdx].ans)).map(qIdx=>questions[qIdx].q);onQuizSubmit(moduleId,c,quizIndices.length,wrongQs,moduleName);}}
             disabled={Object.keys(selected).length<quizIndices.length}
             className="px-6 py-2 bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] font-bold rounded-lg disabled:opacity-40 transition-colors">{t.submit}</button>
         :<div className="flex items-center gap-4 flex-wrap">
-          <span className="font-bold text-[#004030] dark:text-[#D8C3A5]">{t.score}: {quizIndices.filter((qIdx,i)=>selected[i]===questions[qIdx].ans).length}/{quizIndices.length}</span>
+          <span className="font-bold text-[#004030] dark:text-[#D8C3A5]">{t.score}: {quizIndices.filter((qIdx,i)=>selected[i]===_d(questions[qIdx].ans)).length}/{quizIndices.length}</span>
           <button onClick={()=>{setSelected({});setSubmitted(false);}}
             className="px-6 py-2 border border-[#004030] dark:border-[#D8C3A5] text-[#004030] dark:text-[#D8C3A5] font-bold rounded-lg transition-colors">{t.retry}</button>
         </div>
@@ -638,24 +668,29 @@ const RelationshipComparison=({lang})=>{
 
 /* ===== MAIN APP ===== */
 function App(){
+  const LS_KEY='VI_SPA_analytics';
+  const LS_STU='VI_SPA_student';
+  const loadLS=(key,fallback)=>{try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback;}catch{return fallback;}};
   const[lang,setLang]=useState('zh');
   const[isDark,setIsDark]=useState(false);
   const[module,setModule]=useState(0);
   const[menuOpen,setMenuOpen]=useState(false);
   const[ttsState,setTtsState]=useState('idle');
-  const[studentInfo,setStudentInfo]=useState({group:'',dept:'',id:'',name:''});
-  const[analytics,setAnalytics]=useState({time:Array(TOTAL).fill(0),clicks:Array(TOTAL).fill(0),quizCorrect:Array(TOTAL).fill(0),quizTotal:Array(TOTAL).fill(0)});
+  const[studentInfo,setStudentInfo]=useState(()=>loadLS(LS_STU,{group:'',dept:'',id:'',nameEn:'',nameZh:''}));
+  const[analytics,setAnalytics]=useState(()=>loadLS(LS_KEY,{time:Array(TOTAL).fill(0),clicks:Array(TOTAL).fill(0),quizCorrect:Array(TOTAL).fill(0),quizTotal:Array(TOTAL).fill(0),wrongTopics:{}}));
   const contentRef=useRef(null);
   const menuRef=useRef(null);
   const t=dict[lang];
 
   useEffect(()=>{document.documentElement.classList.toggle('dark',isDark);},[isDark]);
+  useEffect(()=>{try{localStorage.setItem(LS_KEY,JSON.stringify(analytics));}catch{}},[analytics]);
+  useEffect(()=>{try{localStorage.setItem(LS_STU,JSON.stringify(studentInfo));}catch{}},[studentInfo]);
   useEffect(()=>{const iv=setInterval(()=>{setAnalytics(a=>{const nt=[...a.time];nt[module]+=1;return{...a,time:nt};});},1000);return()=>clearInterval(iv);},[module]);
   useEffect(()=>{window.scrollTo({top:0,behavior:'smooth'});window.speechSynthesis&&window.speechSynthesis.cancel();setTtsState('idle');},[module]);
   useEffect(()=>{if(!menuOpen)return;const h=e=>{if(menuRef.current&&!menuRef.current.contains(e.target))setMenuOpen(false);};document.addEventListener('mousedown',h);return()=>document.removeEventListener('mousedown',h);},[menuOpen]);
 
   const handleClick=useCallback(()=>{setAnalytics(a=>{const nc=[...a.clicks];nc[module]+=1;return{...a,clicks:nc};});},[module]);
-  const handleQuizSubmit=(mid,correct,total)=>{setAnalytics(a=>{const qc=[...a.quizCorrect],qt=[...a.quizTotal];qc[mid]+=correct;qt[mid]+=total;return{...a,quizCorrect:qc,quizTotal:qt};});};
+  const handleQuizSubmit=(mid,correct,total,wrongQs,moduleName)=>{setAnalytics(a=>{const qc=[...a.quizCorrect],qt=[...a.quizTotal];qc[mid]+=correct;qt[mid]+=total;const wt={...a.wrongTopics};if(!wt[mid])wt[mid]=[];if(wrongQs&&wrongQs.length>0)wt[mid]=[...wt[mid],...wrongQs];return{...a,quizCorrect:qc,quizTotal:qt,wrongTopics:wt};});};
 
   const modulesList=[
     {id:0,icon:'📋',num:0,title:t.m0_nav},
@@ -684,7 +719,26 @@ function App(){
         texts=[t[`${mk}_title`],...[1,2,3,4,5].map(n=>t[`${mk}_p${n}`]).filter(Boolean),...(t[`${mk}_cards`]||[]).map(c=>`${c.title}. ${c.desc}`),...(t[`${mk}_terms`]||[]).flatMap(term=>[term.front,term.back]),t[`${mk}_alert`]].filter(Boolean);
       }else if(module===6){texts=[t.m6_title,t.m6_desc].filter(Boolean);}
       else if(module===7){texts=[t.mlab_title,t.mlab_desc,...(t.mlab_labs||[]).map(l=>`${l.title}. ${l.desc}`)].filter(Boolean);}
-      else{texts=[t.analytics_title,t.analytics_desc].filter(Boolean);}
+      else{
+        const totalCorrectTTS=analytics.quizCorrect.reduce((a,b)=>a+b,0);
+        const totalAnsweredTTS=analytics.quizTotal.reduce((a,b)=>a+b,0);
+        const overallAccTTS=totalAnsweredTTS>0?Math.round(totalCorrectTTS/totalAnsweredTTS*100):0;
+        const weakTTS=[];
+        for(let wi=1;wi<=5;wi++){if(analytics.quizTotal[wi]>0){const wacc=Math.round(analytics.quizCorrect[wi]/analytics.quizTotal[wi]*100);if(wacc<75)weakTTS.push({name:modulesList[wi].title,acc:wacc});}}
+        weakTTS.sort((a,b)=>a.acc-b.acc);
+        texts=[t.analytics_title,t.analytics_desc,
+          `${t.analytics_total_time}: ${analytics.time.reduce((a,b)=>a+b,0)}${t.analytics_sec}`,
+          `${t.analytics_total_clicks}: ${analytics.clicks.reduce((a,b)=>a+b,0)}${t.analytics_times}`,
+          `${t.analytics_overall_acc}: ${overallAccTTS}%`
+        ];
+        if(weakTTS.length>0){
+          texts.push(t.analytics_wp_tts_intro);
+          weakTTS.forEach(wm=>{texts.push(t.analytics_wp_tts_module.replace('{name}',wm.name).replace('{acc}',wm.acc));});
+        }else if(totalAnsweredTTS>0){
+          texts.push(t.analytics_wp_tts_allpass);
+        }
+        texts=texts.filter(Boolean);
+      }
       const text=texts.join(sep);
       const utterance=new SpeechSynthesisUtterance(text);
       utterance.rate=0.95;
@@ -697,13 +751,15 @@ function App(){
   };
 
   const exportCSV=()=>{
-    if(!studentInfo.group||!studentInfo.dept||!studentInfo.id||!studentInfo.name)return;
+    if(!studentInfo.group||!studentInfo.dept||!studentInfo.id||!studentInfo.nameEn||!studentInfo.nameZh)return;
     const bom='\uFEFF';
-    let csv=bom+'Module,Time(sec),Clicks,Correct,Answered,Total Questions\n';
-    modulesList.forEach((m,i)=>{csv+=`"${m.title.replace(/"/g,'""')}",${analytics.time[i]},${analytics.clicks[i]},${analytics.quizCorrect[i]},${analytics.quizTotal[i]},${i>=1&&i<=5?8:0}\n`;});
-    csv+=`\nGroup,${studentInfo.group}\nDept,${studentInfo.dept}\nID,${studentInfo.id}\nName,${studentInfo.name}\n`;
+    let csv=bom+'Module,Time(sec),Clicks,Correct,Answered,Total Questions,Wrong Questions\n';
+    modulesList.forEach((m,i)=>{const wrongs=(analytics.wrongTopics[i]||[]).join(' | ').replace(/"/g,'""');csv+=`"${m.title.replace(/"/g,'""')}",${analytics.time[i]},${analytics.clicks[i]},${analytics.quizCorrect[i]},${analytics.quizTotal[i]},${i>=1&&i<=5?8:0},"${wrongs}"\n`;});
+    csv+=`\nGroup,${studentInfo.group}\nDept,${studentInfo.dept}\nID,${studentInfo.id}\nEnglish Name,${studentInfo.nameEn}\nChinese Name,${studentInfo.nameZh}\n`;
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`VI_Analytics_${studentInfo.id}.csv`;a.click();URL.revokeObjectURL(url);
+    const now=new Date();const ds=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+    const fn=`${dict.zh.brand} ${dict.zh.title}_${studentInfo.nameEn} ${studentInfo.nameZh}_${ds}.csv`;
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fn;a.click();URL.revokeObjectURL(url);
   };
 
   const renderResources=()=>{
@@ -768,16 +824,63 @@ function App(){
     const totalCorrect=analytics.quizCorrect.reduce((a,b)=>a+b,0);
     const totalAnswered=analytics.quizTotal.reduce((a,b)=>a+b,0);
     const overallAcc=totalAnswered>0?Math.round(totalCorrect/totalAnswered*100):0;
-    const canExport=studentInfo.group&&studentInfo.dept&&studentInfo.id&&studentInfo.name;
+    const canExport=studentInfo.group&&studentInfo.dept&&studentInfo.id&&studentInfo.nameEn&&studentInfo.nameZh;
+
+    /* Weak-point analysis */
+    const weakModules=[];
+    for(let i=1;i<=5;i++){
+      if(analytics.quizTotal[i]>0){
+        const acc=Math.round(analytics.quizCorrect[i]/analytics.quizTotal[i]*100);
+        if(acc<75)weakModules.push({id:i,acc,name:modulesList[i].title,wrongs:analytics.wrongTopics[i]||[]});
+      }
+    }
+    weakModules.sort((a,b)=>a.acc-b.acc);
+
+    const handleClearData=()=>{if(window.confirm(t.analytics_wp_clear_confirm)){setAnalytics({time:Array(TOTAL).fill(0),clicks:Array(TOTAL).fill(0),quizCorrect:Array(TOTAL).fill(0),quizTotal:Array(TOTAL).fill(0),wrongTopics:{}});try{localStorage.removeItem(LS_KEY);}catch{}}};
+
     return(
       <div className="space-y-8 animate-fade-in">
         <H2 icon={modulesList[8].icon} number={8}>{t.analytics_title}</H2>
         <p className="text-slate-600 dark:text-slate-400">{t.analytics_desc}</p>
+        {totalTime>0&&<p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1"><span>💾</span>{t.analytics_wp_saved}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center border border-slate-200 dark:border-slate-700"><div className="text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{totalTime}{t.analytics_sec}</div><div className="text-xs text-slate-500">{t.analytics_total_time}</div></div>
           <div className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center border border-slate-200 dark:border-slate-700"><div className="text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{totalClicks}{t.analytics_times}</div><div className="text-xs text-slate-500">{t.analytics_total_clicks}</div></div>
           <div className="bg-white dark:bg-slate-800 rounded-xl p-5 text-center border border-slate-200 dark:border-slate-700"><div className="text-3xl font-black font-serif text-[#004030] dark:text-[#D8C3A5]">{overallAcc}%</div><div className="text-xs text-slate-500">{t.analytics_overall_acc}</div></div>
         </div>
+
+        {/* Weak-Point Analysis & Review Recommendations */}
+        {weakModules.length>0&&(
+          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-5 border border-amber-200 dark:border-amber-700">
+            <h3 className="font-bold font-serif text-amber-800 dark:text-amber-300 mb-3 flex items-center gap-2"><span>🎯</span>{t.analytics_wp_title}</h3>
+            <div className="space-y-4">
+              {weakModules.map(wm=>(
+                <div key={wm.id} className="bg-white/60 dark:bg-slate-800/60 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <button onClick={()=>setModule(wm.id)} className="font-bold text-sm text-[#004030] dark:text-[#D8C3A5] hover:underline cursor-pointer">{wm.name}</button>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${wm.acc<50?'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300':'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}`}>{wm.acc}%</span>
+                  </div>
+                  <div className="bg-slate-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden mb-2"><div className={`h-full rounded-full transition-all ${wm.acc<50?'bg-red-400':'bg-amber-400'}`} style={{width:`${wm.acc}%`}}/></div>
+                  {wm.wrongs.length>0&&(
+                    <div className="mt-2">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{t.analytics_wp_incorrect}</p>
+                      <ul className="space-y-1">{wm.wrongs.slice(-4).map((wq,wi)=>(
+                        <li key={wi} className="text-xs text-slate-600 dark:text-slate-400 pl-3 border-l-2 border-amber-300 dark:border-amber-600">{wq}</li>
+                      ))}</ul>
+                    </div>
+                  )}
+                  <button onClick={()=>setModule(wm.id)} className="mt-2 text-xs font-bold text-[#004030] dark:text-[#D8C3A5] hover:underline">{t.analytics_wp_goto}</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {totalAnswered>0&&weakModules.length===0&&(
+          <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-5 border border-green-200 dark:border-green-700 text-center">
+            <p className="text-green-700 dark:text-green-300 font-bold">🎉 {t.analytics_wp_allpass}</p>
+          </div>
+        )}
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead><tr className="bg-[#004030] text-white dark:bg-slate-700">
@@ -796,12 +899,16 @@ function App(){
         <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
           <h3 className="font-bold font-serif text-[#004030] dark:text-[#D8C3A5] mb-4">{t.analytics_form_title}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_group}</label><select value={studentInfo.group} onChange={e=>setStudentInfo(s=>({...s,group:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"><option value="">{lang==='zh'?'請選擇':'Select'}</option>{t.group_options.map(g=><option key={g} value={g}>{g}</option>)}</select></div>
+            <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_group}</label><select value={studentInfo.group} onChange={e=>setStudentInfo(s=>({...s,group:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"><option value="">{t.analytics_group_select}</option>{t.group_options.map(g=><option key={g} value={g}>{g}</option>)}</select></div>
             <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_dept}</label><input placeholder={t.analytics_dept_ph} value={studentInfo.dept} onChange={e=>setStudentInfo(s=>({...s,dept:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"/></div>
             <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_id}</label><input placeholder={t.analytics_id_ph} value={studentInfo.id} onChange={e=>setStudentInfo(s=>({...s,id:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"/></div>
-            <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_name}</label><input placeholder={t.analytics_name_ph} value={studentInfo.name} onChange={e=>setStudentInfo(s=>({...s,name:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"/></div>
+            <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_name_en}</label><input placeholder={t.analytics_name_en_ph} value={studentInfo.nameEn} onChange={e=>setStudentInfo(s=>({...s,nameEn:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"/></div>
+            <div><label className="text-sm text-slate-600 dark:text-slate-400">{t.analytics_name_zh}</label><input placeholder={t.analytics_name_zh_ph} value={studentInfo.nameZh} onChange={e=>setStudentInfo(s=>({...s,nameZh:e.target.value}))} className="w-full mt-1 p-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200"/></div>
           </div>
-          <button onClick={exportCSV} disabled={!canExport} className={`mt-4 px-6 py-2 font-bold rounded-lg transition-colors ${canExport?'bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] hover:bg-[#002b20]':'bg-slate-300 text-slate-500 cursor-not-allowed'}`}>{canExport?t.analytics_export_csv:t.analytics_fill_required}</button>
+          <div className="flex items-center gap-3 mt-4 flex-wrap">
+            <button onClick={exportCSV} disabled={!canExport} className={`px-6 py-2 font-bold rounded-lg transition-colors ${canExport?'bg-[#004030] dark:bg-[#D8C3A5] text-white dark:text-[#004030] hover:bg-[#002b20]':'bg-slate-300 text-slate-500 cursor-not-allowed'}`}>{canExport?t.analytics_export_csv:t.analytics_fill_required}</button>
+            <button onClick={handleClearData} className="px-4 py-2 text-xs font-bold text-red-500 border border-red-300 dark:border-red-700 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">{t.analytics_wp_clear}</button>
+          </div>
         </div>
       </div>
     );
@@ -828,7 +935,7 @@ function App(){
             {(t[`${mk}_terms`]||[]).map((term,i)=><FlipCard key={i} front={term.front} back={term.back} t={t}/>)}
           </div>
         </div>
-        <ModuleQuiz key={`quiz-${module}`} questions={t[`${mk}_q`]} t={t} moduleId={module} onQuizSubmit={handleQuizSubmit}/>
+        <ModuleQuiz key={`quiz-${module}`} questions={t[`${mk}_q`]} t={t} moduleId={module} onQuizSubmit={handleQuizSubmit} moduleName={t[`${mk}_title`]}/>
       </div>
     );
   };
