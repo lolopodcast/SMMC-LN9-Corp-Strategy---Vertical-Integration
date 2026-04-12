@@ -105,10 +105,10 @@ const IconPause = ({size=24,className=""}) => <svg draggable="false" xmlns="http
 const IconSquare = ({size=24,className=""}) => <svg draggable="false" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>;
 const IconArrowRight = ({size=24,className=""}) => <svg draggable="false" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
 const IconActivity = ({size=24,className=""}) => <svg draggable="false" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>;
-const IconBriefcase = ({size=24,className=""}) => <svg draggable="false" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>;
+const IconMinimize = ({size=24,className=""}) => <svg draggable="false" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>;
 const IconGitMerge = ({size=24,className=""}) => <svg draggable="false" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>;
 const IconLink = ({size=24,className=""}) => <svg draggable="false" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>;
-const IconMinimize = ({size=24,className=""}) => <svg draggable="false" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>;
+const IconTrendingUp = ({size=24,className=""}) => <svg draggable="false" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
 const IconZapLab = ({size=24,className=""}) => <svg draggable="false" xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/><circle cx="18" cy="18" r="4"/></svg>;
 
 /* ═══════ DICT ═══════ */
@@ -254,7 +254,13 @@ m4_q:[
   {q:"過度外包 (Over-outsourcing) 的一項長期隱憂是什麼？",opts:["導致公司稅務增加","可能導致企業喪失「從製造中學習」的機會，最終連核心設計與創新能力也被代工廠掏空","會導致辦公室太空曠","員工會太閒"],ans:1,exp:"許多學者警告，研發與製造往往難以完全分割。放棄製造可能導致企業逐漸失去對產品底層技術的敏銳度。"},
   {q:"什麼技術因素大幅推動了產業的垂直解構？",opts:["產品設計的「模組化」(Modularity) 與介面標準化","產品設計的「高度整合一體化」","人工手寫帳本","傳統的打字機"],ans:0,exp:"當產品（如 PC）被設計成標準介面的模組時，組裝廠就能輕易從市場採購各模組，無須自行垂直整合。"},
   {q:"驅動近年來外包狂潮的最重要外部環境因素是？",opts:["氣候變遷","網際網路與資通訊科技的大幅進步，顯著降低了市場交易成本","工會的崛起","石油價格上漲"],ans:1,exp:"IT 技術的進步解決了 Coase 提出的搜尋、協調與監督成本，使得市場機制的效率大幅超越企業內部的科層管理。"}
-]
+],
+
+m6_nav:"6. 外部資源",m6_title:"延伸學習資源",m6_desc:"精選集團策略與垂直整合的經典文獻與實務洞察，供進一步探索。",
+mlab_nav:"7. 互動實驗室",mlab_title:"互動實驗室",mlab_desc:"透過視覺化模擬器，親自操作並體驗交易成本、套牢風險與價值鏈整合決策。",
+date:"Version 2026.04.12",copyright:"For Educational Use Only",
+architect_label:"Architect:",architect_name:"Prof. Shihmin Lo",
+architect_url:"https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo"
 },
 en: {
 brand:"CS-VI",title:"Corporate Strategy: Vertical Integration",subtitle:"Transaction Costs, Boundaries & Supply Chain Disaggregation",
@@ -397,7 +403,13 @@ m4_q:[
   {q:"What is a long-term hidden risk of 'Over-outsourcing'?",opts:["Increased corporate taxes","Losing 'learning-by-doing' opportunities, eventually hollowing out core design and innovation capabilities to the contract manufacturer","The office gets too empty","Employees have too much free time"],ans:1,exp:"Many scholars warn that R&D and manufacturing are hard to sever. Abandoning manufacturing can cause firms to lose their edge in underlying product technologies."},
   {q:"What technological factor heavily facilitated vertical disaggregation?",opts:["'Modularity' and interface standardization in product design","Highly integrated, unibody product designs","Manual ledger accounting","Traditional typewriters"],ans:0,exp:"When products (like PCs) are designed as modules with standard interfaces, assembly firms can easily source modules from the market without vertical integration."},
   {q:"What was the most important external environmental driver of the recent outsourcing wave?",opts:["Climate change","Massive advancements in the internet and ICT, drastically lowering market transaction costs","Rise of labor unions","Rising oil prices"],ans:1,exp:"IT advancements solved Coase's search, coordination, and monitoring costs, making the market mechanism vastly more efficient than internal corporate hierarchies."}
-]
+],
+
+m6_nav:"6. Extended Resources",m6_title:"Extended Learning Resources",m6_desc:"Curated classic literature and practical insights in corporate strategy and vertical integration for further exploration.",
+mlab_nav:"7. Interactive Lab",mlab_title:"Interactive Laboratory",mlab_desc:"Personally manipulate and experience dynamic models of transaction costs, hold-up risks, and value chain integration decisions through visual simulators.",
+date:"Version 2026.04.12",copyright:"For Educational Use Only",
+architect_label:"Architect:",architect_name:"Prof. Shihmin Lo",
+architect_url:"https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo"
 }
 };
 
@@ -757,8 +769,9 @@ function App() {
     const BOM='\uFEFF';
     const header='Group,Dept,ID,Name,Module,TimeSpent(sec),Clicks,QuizCorrect,QuizAnswered,QuizTotal\n';
     let rows='';
-    modulesList.forEach((m,i)=>{
-      rows+=`${safeGroup},${safeDept},${safeId},${safeName},${m.title},${analytics.time[i]},${analytics.clicks[i]},${analytics.quizCorrect[i]},${analytics.quizAnswered[i]},${analytics.quizTotal[i]}\n`;
+    modulesList.forEach((m)=>{
+      const mid = m.id;
+      rows+=`${safeGroup},${safeDept},${safeId},${safeName},${m.title},${analytics.time[mid]},${analytics.clicks[mid]},${analytics.quizCorrect[mid]},${analytics.quizAnswered[mid]},${analytics.quizTotal[mid]}\n`;
     });
     
     // 依據規範產生檔名：品牌_主標題_組別_學號_姓名_日期
@@ -875,14 +888,17 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {modulesList.map((m,i)=>(
-                <tr key={i} className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                  <td className="px-3 py-2 font-medium text-slate-700 dark:text-slate-300">{m.title}</td>
-                  <td className="px-3 py-2 text-center">{analytics.time[i]}{t.analytics_sec}</td>
-                  <td className="px-3 py-2 text-center">{analytics.clicks[i]}{t.analytics_times}</td>
-                  <td className="px-3 py-2 text-center">{analytics.quizTotal[i]>0?`${analytics.quizCorrect[i]} / ${analytics.quizAnswered[i]} / ${analytics.quizTotal[i]}`:t.analytics_no_data}</td>
-                </tr>
-              ))}
+              {modulesList.map((m,i)=>{
+                const mid = m.id;
+                return (
+                  <tr key={i} className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                    <td className="px-3 py-2 font-medium text-slate-700 dark:text-slate-300">{m.title}</td>
+                    <td className="px-3 py-2 text-center">{analytics.time[mid]}{t.analytics_sec}</td>
+                    <td className="px-3 py-2 text-center">{analytics.clicks[mid]}{t.analytics_times}</td>
+                    <td className="px-3 py-2 text-center">{analytics.quizTotal[mid]>0?`${analytics.quizCorrect[mid]} / ${analytics.quizAnswered[mid]} / ${analytics.quizTotal[mid]}`:t.analytics_no_data}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -1075,8 +1091,8 @@ function App() {
       {/* FOOTER */}
       <footer className="h-8 bg-[#004030] flex items-center justify-between px-4 shrink-0 select-none">
         <span className="text-[#D8C3A5]/60 text-[10px] sm:text-xs truncate">{t.date} · {t.copyright}</span>
-        <span className="text-[#D8C3A5]/60 text-[10px] sm:text-xs flex items-center gap-3">
-          <span className="flex items-center gap-1">
+        <span className="text-[#D8C3A5]/60 text-[10px] sm:text-xs flex items-center gap-3 shrink-0">
+          <span className="flex items-center gap-1 hidden sm:flex">
             Architect:&nbsp;
             <a href="https://www.ibs.ncnu.edu.tw/index.php/faculty/tenured-professor/299-smlo"
               target="_blank" rel="noopener noreferrer"
@@ -1085,7 +1101,7 @@ function App() {
             </a>
           </span>
           <button onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}
-            className="text-[#D8C3A5] hover:text-white transition-colors font-bold cursor-pointer">
+            className="text-[#D8C3A5] hover:text-white transition-colors font-bold cursor-pointer border-l border-slate-600 pl-3">
             Top ↑
           </button>
         </span>
