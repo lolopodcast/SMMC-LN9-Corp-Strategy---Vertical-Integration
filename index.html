@@ -728,7 +728,29 @@ const RelationshipComparison=({lang})=>{
 function App(){
   const LS_KEY='VI_SPA_analytics';
   const LS_STU='VI_SPA_student';
-  const loadLS=(key,fallback)=>{try{const v=localStorage.getItem(key);return v?JSON.parse(v):fallback;}catch{return fallback;}};
+  const LS_OWNER='VI_SPA_owner';
+  const OWNER_TTL=3000; // 擁有者心跳逾時（毫秒）
+  // 讀回時與預設值淺層合併，避免舊格式資料缺欄位
+  const loadLS=(key,fallback)=>{try{const v=localStorage.getItem(key);if(!v)return fallback;const p=JSON.parse(v);if(!p||typeof p!=='object')return fallback;return{...fallback,...p};}catch(e){return fallback;}};
+  // 多分頁保護：同一時間只讓一個「前景分頁」寫入學習歷程。
+  // 未加保護時，兩個分頁的每秒計時器會互相覆蓋，後寫的把先寫的蓋掉。
+  const tabIdRef=useRef(Math.random().toString(36).slice(2)+Date.now().toString(36));
+  // 寫入權由「擁有者鎖」決定，不直接用 document.hidden 當開關：
+  // 視窗最小化、被完全遮蔽或在內嵌檢視器中，瀏覽器都可能回報 hidden，
+  // 若拿它當硬性條件，學生會在毫無徵兆的情況下完全停止存檔。
+  // 可見度只用來決定「前景分頁可以搶下背景擁有者的寫入權」。
+  const canWrite=()=>{
+    try{
+      const raw=localStorage.getItem(LS_OWNER);
+      const owner=raw?JSON.parse(raw):null;
+      const visible=!(typeof document!=='undefined'&&document.hidden);
+      const mine=!!owner&&owner.id===tabIdRef.current;
+      const expired=!owner||(Date.now()-owner.ts)>OWNER_TTL;
+      if(!(mine||expired||(visible&&owner&&owner.hidden)))return false;
+      localStorage.setItem(LS_OWNER,JSON.stringify({id:tabIdRef.current,ts:Date.now(),hidden:!visible})); // 續約心跳
+      return true;
+    }catch(e){return true;} // localStorage 不可用時不阻擋既有行為
+  };
   const[lang,setLang]=useState('zh');
   const[isDark,setIsDark]=useState(false);
   const[module,setModule]=useState(0);
@@ -741,8 +763,36 @@ function App(){
   const t=dict[lang];
 
   useEffect(()=>{document.documentElement.classList.toggle('dark',isDark);},[isDark]);
-  useEffect(()=>{try{localStorage.setItem(LS_KEY,JSON.stringify(analytics));}catch{}},[analytics]);
-  useEffect(()=>{try{localStorage.setItem(LS_STU,JSON.stringify(studentInfo));}catch{}},[studentInfo]);
+  useEffect(()=>{if(canWrite()){try{localStorage.setItem(LS_KEY,JSON.stringify(analytics));}catch(e){}}},[analytics]);
+  useEffect(()=>{if(canWrite()){try{localStorage.setItem(LS_STU,JSON.stringify(studentInfo));}catch(e){}}},[studentInfo]);
+  // 分頁重新回到前景時，先採用本機已儲存的紀錄再接手寫入權，
+  // 避免背景期間累積的過期狀態覆蓋另一個分頁剛寫入的資料。
+  useEffect(()=>{
+    const onVisible=()=>{
+      if(document.hidden)return;
+      setAnalytics(a=>loadLS(LS_KEY,a));
+      setStudentInfo(s=>loadLS(LS_STU,s));
+      try{localStorage.setItem(LS_OWNER,JSON.stringify({id:tabIdRef.current,ts:Date.now()}));}catch(e){}
+    };
+    const onLeave=()=>{
+      try{
+        const raw=localStorage.getItem(LS_OWNER);
+        const owner=raw?JSON.parse(raw):null;
+        if(owner&&owner.id===tabIdRef.current)localStorage.removeItem(LS_OWNER); // 關閉時讓出寫入權
+      }catch(e){}
+    };
+    // 另一個分頁寫入時同步過來。storage 事件只會在「非寫入端」觸發，
+    // 可涵蓋兩個視窗同時可見、visibilitychange 不會發生的情況。
+    const onStorage=(e)=>{
+      if(e.key===LS_KEY&&e.newValue){try{setAnalytics(a=>({...a,...JSON.parse(e.newValue)}));}catch(err){}}
+      if(e.key===LS_STU&&e.newValue){try{setStudentInfo(s=>({...s,...JSON.parse(e.newValue)}));}catch(err){}}
+    };
+    document.addEventListener('visibilitychange',onVisible);
+    window.addEventListener('pagehide',onLeave);
+    window.addEventListener('storage',onStorage);
+    return()=>{document.removeEventListener('visibilitychange',onVisible);window.removeEventListener('pagehide',onLeave);window.removeEventListener('storage',onStorage);};
+  },[]);
+  // Timer（維持原本行為：不以 document.hidden 停止計時，理由同 canWrite 的註解）
   useEffect(()=>{const iv=setInterval(()=>{setAnalytics(a=>{const nt=[...a.time];nt[module]+=1;return{...a,time:nt};});},1000);return()=>clearInterval(iv);},[module]);
   useEffect(()=>{window.scrollTo({top:0,behavior:'smooth'});window.speechSynthesis&&window.speechSynthesis.cancel();setTtsState('idle');},[module]);
   useEffect(()=>{if(!menuOpen)return;const h=e=>{if(menuRef.current&&!menuRef.current.contains(e.target))setMenuOpen(false);};document.addEventListener('mousedown',h);return()=>document.removeEventListener('mousedown',h);},[menuOpen]);
@@ -810,9 +860,9 @@ function App(){
 
   const exportCSV=()=>{
     if(!studentInfo.group||!studentInfo.dept||!studentInfo.id||!studentInfo.nameEn||!studentInfo.nameZh)return;
-    // DOMPurify \u6DE8\u5316\u4F7F\u7528\u8005\u8F38\u5165\uFF1B\u672A\u8F09\u5165\u6642\u9000\u56DE\u539F\u503C\uFF0C\u4E0D\u963B\u65B7\u532F\u51FA
+    // DOMPurify 淨化使用者輸入；未載入時退回原值，不阻斷匯出
     const clean=(v)=>{const s=(v??'').toString();return window.DOMPurify?window.DOMPurify.sanitize(s):s;};
-    // CSV \u6B04\u4F4D\u5B89\u5168\uFF1A\u6DE8\u5316\u5F8C\u8DF3\u812B\u96D9\u5F15\u865F\uFF0C\u4E26\u64CB\u6389\u8A66\u7B97\u8868\u516C\u5F0F\u6CE8\u5165
+    // CSV 欄位安全：淨化後跳脫雙引號，並擋掉試算表公式注入
     const cell=(v)=>{let s=clean(v).replace(/[\r\n]+/g,' ').trim();if(/^[=+\-@]/.test(s))s="'"+s;return s.replace(/"/g,'""');};
     const bom='\uFEFF';
     let csv=bom+'Module,Time(sec),Clicks,Correct,Answered,Total Questions,Wrong Questions\n';
@@ -820,7 +870,7 @@ function App(){
     csv+=`\nGroup,"${cell(studentInfo.group)}"\nDept,"${cell(studentInfo.dept)}"\nID,"${cell(studentInfo.id)}"\nEnglish Name,"${cell(studentInfo.nameEn)}"\nChinese Name,"${cell(studentInfo.nameZh)}"\n`;
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
     const now=new Date();const ds=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
-    // \u6A94\u540D\u6DE8\u5316\uFF1A\u79FB\u9664 Windows/macOS \u4E0D\u5141\u8A31\u7684\u5B57\u5143
+    // 檔名淨化：移除 Windows/macOS 不允許的字元
     const fnPart=(v)=>clean(v).replace(/[\\/:*?"<>|]/g,'_').trim();
     const fn=`${dict.zh.brand} ${dict.zh.title}_${fnPart(studentInfo.nameEn)} ${fnPart(studentInfo.nameZh)}_${ds}.csv`;
     const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fn;a.click();URL.revokeObjectURL(url);
