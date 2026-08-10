@@ -772,7 +772,7 @@ function App(){
       if(document.hidden)return;
       setAnalytics(a=>loadLS(LS_KEY,a));
       setStudentInfo(s=>loadLS(LS_STU,s));
-      try{localStorage.setItem(LS_OWNER,JSON.stringify({id:tabIdRef.current,ts:Date.now()}));}catch(e){}
+      try{localStorage.setItem(LS_OWNER,JSON.stringify({id:tabIdRef.current,ts:Date.now(),hidden:false}));}catch(e){}
     };
     const onLeave=()=>{
       try{
